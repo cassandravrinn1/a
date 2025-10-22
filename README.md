@@ -1,6 +1,7 @@
 # Unity-Game-Project
 
 Unity 游戏项目 Git 仓库模板
+@ 2025 CassandraVrinn. All Rights Reserved.
 
 ## 分支说明
 - `main`: 稳定发布分支
