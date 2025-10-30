@@ -1,0 +1,1177 @@
+[1mdiff --git a/Assets/Resources.meta b/Assets/Resources.meta[m
+[1mdeleted file mode 100644[m
+[1mindex 00af403..0000000[m
+[1m--- a/Assets/Resources.meta[m
+[1m+++ /dev/null[m
+[36m@@ -1,8 +0,0 @@[m
+[31m-fileFormatVersion: 2[m
+[31m-guid: b88f48ea2b6a32c4b856808561539169[m
+[31m-folderAsset: yes[m
+[31m-DefaultImporter:[m
+[31m-  externalObjects: {}[m
+[31m-  userData: [m
+[31m-  assetBundleName: [m
+[31m-  assetBundleVariant: [m
+[1mdiff --git a/Assets/Resources/FigmaUI.meta b/Assets/Resources/FigmaUI.meta[m
+[1mdeleted file mode 100644[m
+[1mindex 7732aeb..0000000[m
+[1m--- a/Assets/Resources/FigmaUI.meta[m
+[1m+++ /dev/null[m
+[36m@@ -1,8 +0,0 @@[m
+[31m-fileFormatVersion: 2[m
+[31m-guid: 0da822f27a63ed94eb877b23f214289f[m
+[31m-folderAsset: yes[m
+[31m-DefaultImporter:[m
+[31m-  externalObjects: {}[m
+[31m-  userData: [m
+[31m-  assetBundleName: [m
+[31m-  assetBundleVariant: [m
+[1mdiff --git a/Assets/Resources/FigmaUI/background.png b/Assets/Resources/FigmaUI/background.png[m
+[1mdeleted file mode 100644[m
+[1mindex 1d0497c..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/background.png[m
+[1m+++ /dev/null[m
+[36m@@ -1,3 +0,0 @@[m
+[31m-version https://git-lfs.github.com/spec/v1[m
+[31m-oid sha256:f2043d0998cbc10c9080d15590d8a39629ae76b6c5a46c147feb5aeabf22e425[m
+[31m-size 1455419[m
+[1mdiff --git a/Assets/Resources/FigmaUI/background.png.meta b/Assets/Resources/FigmaUI/background.png.meta[m
+[1mdeleted file mode 100644[m
+[1mindex d96bb92..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/background.png.meta[m
+[1m+++ /dev/null[m
+[36m@@ -1,114 +0,0 @@[m
+[31m-fileFormatVersion: 2[m
+[31m-guid: 1d55f5e57a483c440b4adca8e16461ce[m
+[31m-TextureImporter:[m
+[31m-  internalIDToNameTable: [][m
+[31m-  externalObjects: {}[m
+[31m-  serializedVersion: 13[m
+[31m-  mipmaps:[m
+[31m-    mipMapMode: 0[m
+[31m-    enableMipMap: 0[m
+[31m-    sRGBTexture: 1[m
+[31m-    linearTexture: 0[m
+[31m-    fadeOut: 0[m
+[31m-    borderMipMap: 0[m
+[31m-    mipMapsPreserveCoverage: 0[m
+[31m-    alphaTestReferenceValue: 0.5[m
+[31m-    mipMapFadeDistanceStart: 1[m
+[31m-    mipMapFadeDistanceEnd: 3[m
+[31m-  bumpmap:[m
+[31m-    convertToNormalMap: 0[m
+[31m-    externalNormalMap: 0[m
+[31m-    heightScale: 0.25[m
+[31m-    normalMapFilter: 0[m
+[31m-    flipGreenChannel: 0[m
+[31m-  isReadable: 0[m
+[31m-  streamingMipmaps: 0[m
+[31m-  streamingMipmapsPriority: 0[m
+[31m-  vTOnly: 0[m
+[31m-  ignoreMipmapLimit: 0[m
+[31m-  grayScaleToAlpha: 0[m
+[31m-  generateCubemap: 6[m
+[31m-  cubemapConvolution: 0[m
+[31m-  seamlessCubemap: 0[m
+[31m-  textureFormat: 1[m
+[31m-  maxTextureSize: 2048[m
+[31m-  textureSettings:[m
+[31m-    serializedVersion: 2[m
+[31m-    filterMode: 1[m
+[31m-    aniso: 1[m
+[31m-    mipBias: 0[m
+[31m-    wrapU: 1[m
+[31m-    wrapV: 1[m
+[31m-    wrapW: 1[m
+[31m-  nPOTScale: 0[m
+[31m-  lightmap: 0[m
+[31m-  compressionQuality: 50[m
+[31m-  spriteMode: 1[m
+[31m-  spriteExtrude: 1[m
+[31m-  spriteMeshType: 1[m
+[31m-  alignment: 0[m
+[31m-  spritePivot: {x: 0.5, y: 0.5}[m
+[31m-  spritePixelsToUnits: 100[m
+[31m-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}[m
+[31m-  spriteGenerateFallbackPhysicsShape: 1[m
+[31m-  alphaUsage: 1[m
+[31m-  alphaIsTransparency: 1[m
+[31m-  spriteTessellationDetail: -1[m
+[31m-  textureType: 8[m
+[31m-  textureShape: 1[m
+[31m-  singleChannelComponent: 0[m
+[31m-  flipbookRows: 1[m
+[31m-  flipbookColumns: 1[m
+[31m-  maxTextureSizeSet: 0[m
+[31m-  compressionQualitySet: 0[m
+[31m-  textureFormatSet: 0[m
+[31m-  ignorePngGamma: 0[m
+[31m-  applyGammaDecoding: 0[m
+[31m-  swizzle: 50462976[m
+[31m-  cookieLightType: 0[m
+[31m-  platformSettings:[m
+[31m-  - serializedVersion: 3[m
+[31m-    buildTarget: DefaultTexturePlatform[m
+[31m-    maxTextureSize: 2048[m
+[31m-    resizeAlgorithm: 0[m
+[31m-    textureFormat: -1[m
+[31m-    textureCompression: 1[m
+[31m-    compressionQuality: 50[m
+[31m-    crunchedCompression: 0[m
+[31m-    allowsAlphaSplitting: 0[m
+[31m-    overridden: 0[m
+[31m-    ignorePlatformSupport: 0[m
+[31m-    androidETC2FallbackOverride: 0[m
+[31m-    forceMaximumCompressionQuality_BC6H_BC7: 0[m
+[31m-  - serializedVersion: 3[m
+[31m-    buildTarget: Standalone[m
+[31m-    maxTextureSize: 2048[m
+[31m-    resizeAlgorithm: 0[m
+[31m-    textureFormat: -1[m
+[31m-    textureCompression: 1[m
+[31m-    compressionQuality: 50[m
+[31m-    crunchedCompression: 0[m
+[31m-    allowsAlphaSplitting: 0[m
+[31m-    overridden: 0[m
+[31m-    ignorePlatformSupport: 0[m
+[31m-    androidETC2FallbackOverride: 0[m
+[31m-    forceMaximumCompressionQuality_BC6H_BC7: 0[m
+[31m-  spriteSheet:[m
+[31m-    serializedVersion: 2[m
+[31m-    sprites: [][m
+[31m-    outline: [][m
+[31m-    physicsShape: [][m
+[31m-    bones: [][m
+[31m-    spriteID: 5e97eb03825dee720800000000000000[m
+[31m-    internalID: 0[m
+[31m-    vertices: [][m
+[31m-    indices: [m
+[31m-    edges: [][m
+[31m-    weights: [][m
+[31m-    secondaryTextures: [][m
+[31m-    nameFileIdTable: {}[m
+[31m-  mipmapLimitGroupName: [m
+[31m-  pSDRemoveMatte: 0[m
+[31m-  userData: [m
+[31m-  assetBundleName: [m
+[31m-  assetBundleVariant: [m
+[1mdiff --git a/Assets/Resources/FigmaUI/character.png b/Assets/Resources/FigmaUI/character.png[m
+[1mdeleted file mode 100644[m
+[1mindex 137ed51..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/character.png[m
+[1m+++ /dev/null[m
+[36m@@ -1,3 +0,0 @@[m
+[31m-version https://git-lfs.github.com/spec/v1[m
+[31m-oid sha256:edd5c6753e4be7eb1cd2a963fda8f74d387c6a4ae74876aab88d9de778a55985[m
+[31m-size 437670[m
+[1mdiff --git a/Assets/Resources/FigmaUI/character.png.meta b/Assets/Resources/FigmaUI/character.png.meta[m
+[1mdeleted file mode 100644[m
+[1mindex 9ab3cbf..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/character.png.meta[m
+[1m+++ /dev/null[m
+[36m@@ -1,114 +0,0 @@[m
+[31m-fileFormatVersion: 2[m
+[31m-guid: 48be3f05bd2f3884287828ce9bbd8c8c[m
+[31m-TextureImporter:[m
+[31m-  internalIDToNameTable: [][m
+[31m-  externalObjects: {}[m
+[31m-  serializedVersion: 13[m
+[31m-  mipmaps:[m
+[31m-    mipMapMode: 0[m
+[31m-    enableMipMap: 0[m
+[31m-    sRGBTexture: 1[m
+[31m-    linearTexture: 0[m
+[31m-    fadeOut: 0[m
+[31m-    borderMipMap: 0[m
+[31m-    mipMapsPreserveCoverage: 0[m
+[31m-    alphaTestReferenceValue: 0.5[m
+[31m-    mipMapFadeDistanceStart: 1[m
+[31m-    mipMapFadeDistanceEnd: 3[m
+[31m-  bumpmap:[m
+[31m-    convertToNormalMap: 0[m
+[31m-    externalNormalMap: 0[m
+[31m-    heightScale: 0.25[m
+[31m-    normalMapFilter: 0[m
+[31m-    flipGreenChannel: 0[m
+[31m-  isReadable: 0[m
+[31m-  streamingMipmaps: 0[m
+[31m-  streamingMipmapsPriority: 0[m
+[31m-  vTOnly: 0[m
+[31m-  ignoreMipmapLimit: 0[m
+[31m-  grayScaleToAlpha: 0[m
+[31m-  generateCubemap: 6[m
+[31m-  cubemapConvolution: 0[m
+[31m-  seamlessCubemap: 0[m
+[31m-  textureFormat: 1[m
+[31m-  maxTextureSize: 2048[m
+[31m-  textureSettings:[m
+[31m-    serializedVersion: 2[m
+[31m-    filterMode: 1[m
+[31m-    aniso: 1[m
+[31m-    mipBias: 0[m
+[31m-    wrapU: 1[m
+[31m-    wrapV: 1[m
+[31m-    wrapW: 1[m
+[31m-  nPOTScale: 0[m
+[31m-  lightmap: 0[m
+[31m-  compressionQuality: 50[m
+[31m-  spriteMode: 1[m
+[31m-  spriteExtrude: 1[m
+[31m-  spriteMeshType: 1[m
+[31m-  alignment: 0[m
+[31m-  spritePivot: {x: 0.5, y: 0.5}[m
+[31m-  spritePixelsToUnits: 100[m
+[31m-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}[m
+[31m-  spriteGenerateFallbackPhysicsShape: 1[m
+[31m-  alphaUsage: 1[m
+[31m-  alphaIsTransparency: 1[m
+[31m-  spriteTessellationDetail: -1[m
+[31m-  textureType: 8[m
+[31m-  textureShape: 1[m
+[31m-  singleChannelComponent: 0[m
+[31m-  flipbookRows: 1[m
+[31m-  flipbookColumns: 1[m
+[31m-  maxTextureSizeSet: 0[m
+[31m-  compressionQualitySet: 0[m
+[31m-  textureFormatSet: 0[m
+[31m-  ignorePngGamma: 0[m
+[31m-  applyGammaDecoding: 0[m
+[31m-  swizzle: 50462976[m
+[31m-  cookieLightType: 0[m
+[31m-  platformSettings:[m
+[31m-  - serializedVersion: 3[m
+[31m-    buildTarget: DefaultTexturePlatform[m
+[31m-    maxTextureSize: 2048[m
+[31m-    resizeAlgorithm: 0[m
+[31m-    textureFormat: -1[m
+[31m-    textureCompression: 1[m
+[31m-    compressionQuality: 50[m
+[31m-    crunchedCompression: 0[m
+[31m-    allowsAlphaSplitting: 0[m
+[31m-    overridden: 0[m
+[31m-    ignorePlatformSupport: 0[m
+[31m-    androidETC2FallbackOverride: 0[m
+[31m-    forceMaximumCompressionQuality_BC6H_BC7: 0[m
+[31m-  - serializedVersion: 3[m
+[31m-    buildTarget: Standalone[m
+[31m-    maxTextureSize: 2048[m
+[31m-    resizeAlgorithm: 0[m
+[31m-    textureFormat: -1[m
+[31m-    textureCompression: 1[m
+[31m-    compressionQuality: 50[m
+[31m-    crunchedCompression: 0[m
+[31m-    allowsAlphaSplitting: 0[m
+[31m-    overridden: 0[m
+[31m-    ignorePlatformSupport: 0[m
+[31m-    androidETC2FallbackOverride: 0[m
+[31m-    forceMaximumCompressionQuality_BC6H_BC7: 0[m
+[31m-  spriteSheet:[m
+[31m-    serializedVersion: 2[m
+[31m-    sprites: [][m
+[31m-    outline: [][m
+[31m-    physicsShape: [][m
+[31m-    bones: [][m
+[31m-    spriteID: 5e97eb03825dee720800000000000000[m
+[31m-    internalID: 0[m
+[31m-    vertices: [][m
+[31m-    indices: [m
+[31m-    edges: [][m
+[31m-    weights: [][m
+[31m-    secondaryTextures: [][m
+[31m-    nameFileIdTable: {}[m
+[31m-  mipmapLimitGroupName: [m
+[31m-  pSDRemoveMatte: 0[m
+[31m-  userData: [m
+[31m-  assetBundleName: [m
+[31m-  assetBundleVariant: [m
+[1mdiff --git a/Assets/Resources/FigmaUI/continue.png b/Assets/Resources/FigmaUI/continue.png[m
+[1mdeleted file mode 100644[m
+[1mindex 1af778a..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/continue.png[m
+[1m+++ /dev/null[m
+[36m@@ -1,3 +0,0 @@[m
+[31m-version https://git-lfs.github.com/spec/v1[m
+[31m-oid sha256:a3eaf8c4403ab99fcc4ee64f3d1f7a8dc2053aa3bd95c9a047142f7ba7e6800a[m
+[31m-size 4328[m
+[1mdiff --git a/Assets/Resources/FigmaUI/continue.png.meta b/Assets/Resources/FigmaUI/continue.png.meta[m
+[1mdeleted file mode 100644[m
+[1mindex c47fef7..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/continue.png.meta[m
+[1m+++ /dev/null[m
+[36m@@ -1,114 +0,0 @@[m
+[31m-fileFormatVersion: 2[m
+[31m-guid: 6a3021f741ff33d4b897f42292e808a5[m
+[31m-TextureImporter:[m
+[31m-  internalIDToNameTable: [][m
+[31m-  externalObjects: {}[m
+[31m-  serializedVersion: 13[m
+[31m-  mipmaps:[m
+[31m-    mipMapMode: 0[m
+[31m-    enableMipMap: 0[m
+[31m-    sRGBTexture: 1[m
+[31m-    linearTexture: 0[m
+[31m-    fadeOut: 0[m
+[31m-    borderMipMap: 0[m
+[31m-    mipMapsPreserveCoverage: 0[m
+[31m-    alphaTestReferenceValue: 0.5[m
+[31m-    mipMapFadeDistanceStart: 1[m
+[31m-    mipMapFadeDistanceEnd: 3[m
+[31m-  bumpmap:[m
+[31m-    convertToNormalMap: 0[m
+[31m-    externalNormalMap: 0[m
+[31m-    heightScale: 0.25[m
+[31m-    normalMapFilter: 0[m
+[31m-    flipGreenChannel: 0[m
+[31m-  isReadable: 0[m
+[31m-  streamingMipmaps: 0[m
+[31m-  streamingMipmapsPriority: 0[m
+[31m-  vTOnly: 0[m
+[31m-  ignoreMipmapLimit: 0[m
+[31m-  grayScaleToAlpha: 0[m
+[31m-  generateCubemap: 6[m
+[31m-  cubemapConvolution: 0[m
+[31m-  seamlessCubemap: 0[m
+[31m-  textureFormat: 1[m
+[31m-  maxTextureSize: 2048[m
+[31m-  textureSettings:[m
+[31m-    serializedVersion: 2[m
+[31m-    filterMode: 1[m
+[31m-    aniso: 1[m
+[31m-    mipBias: 0[m
+[31m-    wrapU: 1[m
+[31m-    wrapV: 1[m
+[31m-    wrapW: 1[m
+[31m-  nPOTScale: 0[m
+[31m-  lightmap: 0[m
+[31m-  compressionQuality: 50[m
+[31m-  spriteMode: 1[m
+[31m-  spriteExtrude: 1[m
+[31m-  spriteMeshType: 1[m
+[31m-  alignment: 0[m
+[31m-  spritePivot: {x: 0.5, y: 0.5}[m
+[31m-  spritePixelsToUnits: 100[m
+[31m-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}[m
+[31m-  spriteGenerateFallbackPhysicsShape: 1[m
+[31m-  alphaUsage: 1[m
+[31m-  alphaIsTransparency: 1[m
+[31m-  spriteTessellationDetail: -1[m
+[31m-  textureType: 8[m
+[31m-  textureShape: 1[m
+[31m-  singleChannelComponent: 0[m
+[31m-  flipbookRows: 1[m
+[31m-  flipbookColumns: 1[m
+[31m-  maxTextureSizeSet: 0[m
+[31m-  compressionQualitySet: 0[m
+[31m-  textureFormatSet: 0[m
+[31m-  ignorePngGamma: 0[m
+[31m-  applyGammaDecoding: 0[m
+[31m-  swizzle: 50462976[m
+[31m-  cookieLightType: 0[m
+[31m-  platformSettings:[m
+[31m-  - serializedVersion: 3[m
+[31m-    buildTarget: DefaultTexturePlatform[m
+[31m-    maxTextureSize: 2048[m
+[31m-    resizeAlgorithm: 0[m
+[31m-    textureFormat: -1[m
+[31m-    textureCompression: 1[m
+[31m-    compressionQuality: 50[m
+[31m-    crunchedCompression: 0[m
+[31m-    allowsAlphaSplitting: 0[m
+[31m-    overridden: 0[m
+[31m-    ignorePlatformSupport: 0[m
+[31m-    androidETC2FallbackOverride: 0[m
+[31m-    forceMaximumCompressionQuality_BC6H_BC7: 0[m
+[31m-  - serializedVersion: 3[m
+[31m-    buildTarget: Standalone[m
+[31m-    maxTextureSize: 2048[m
+[31m-    resizeAlgorithm: 0[m
+[31m-    textureFormat: -1[m
+[31m-    textureCompression: 1[m
+[31m-    compressionQuality: 50[m
+[31m-    crunchedCompression: 0[m
+[31m-    allowsAlphaSplitting: 0[m
+[31m-    overridden: 0[m
+[31m-    ignorePlatformSupport: 0[m
+[31m-    androidETC2FallbackOverride: 0[m
+[31m-    forceMaximumCompressionQuality_BC6H_BC7: 0[m
+[31m-  spriteSheet:[m
+[31m-    serializedVersion: 2[m
+[31m-    sprites: [][m
+[31m-    outline: [][m
+[31m-    physicsShape: [][m
+[31m-    bones: [][m
+[31m-    spriteID: 5e97eb03825dee720800000000000000[m
+[31m-    internalID: 0[m
+[31m-    vertices: [][m
+[31m-    indices: [m
+[31m-    edges: [][m
+[31m-    weights: [][m
+[31m-    secondaryTextures: [][m
+[31m-    nameFileIdTable: {}[m
+[31m-  mipmapLimitGroupName: [m
+[31m-  pSDRemoveMatte: 0[m
+[31m-  userData: [m
+[31m-  assetBundleName: [m
+[31m-  assetBundleVariant: [m
+[1mdiff --git a/Assets/Resources/FigmaUI/exit.png b/Assets/Resources/FigmaUI/exit.png[m
+[1mdeleted file mode 100644[m
+[1mindex 2004f2a..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/exit.png[m
+[1m+++ /dev/null[m
+[36m@@ -1,3 +0,0 @@[m
+[31m-version https://git-lfs.github.com/spec/v1[m
+[31m-oid sha256:4350458f9c96dceb0a231554e5429c3e8ee2b55a1cb40bb53aaca581c5386d27[m
+[31m-size 3374[m
+[1mdiff --git a/Assets/Resources/FigmaUI/exit.png.meta b/Assets/Resources/FigmaUI/exit.png.meta[m
+[1mdeleted file mode 100644[m
+[1mindex e17cded..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/exit.png.meta[m
+[1m+++ /dev/null[m
+[36m@@ -1,114 +0,0 @@[m
+[31m-fileFormatVersion: 2[m
+[31m-guid: 503644f9caada4d42b9db60593fc5932[m
+[31m-TextureImporter:[m
+[31m-  internalIDToNameTable: [][m
+[31m-  externalObjects: {}[m
+[31m-  serializedVersion: 13[m
+[31m-  mipmaps:[m
+[31m-    mipMapMode: 0[m
+[31m-    enableMipMap: 0[m
+[31m-    sRGBTexture: 1[m
+[31m-    linearTexture: 0[m
+[31m-    fadeOut: 0[m
+[31m-    borderMipMap: 0[m
+[31m-    mipMapsPreserveCoverage: 0[m
+[31m-    alphaTestReferenceValue: 0.5[m
+[31m-    mipMapFadeDistanceStart: 1[m
+[31m-    mipMapFadeDistanceEnd: 3[m
+[31m-  bumpmap:[m
+[31m-    convertToNormalMap: 0[m
+[31m-    externalNormalMap: 0[m
+[31m-    heightScale: 0.25[m
+[31m-    normalMapFilter: 0[m
+[31m-    flipGreenChannel: 0[m
+[31m-  isReadable: 0[m
+[31m-  streamingMipmaps: 0[m
+[31m-  streamingMipmapsPriority: 0[m
+[31m-  vTOnly: 0[m
+[31m-  ignoreMipmapLimit: 0[m
+[31m-  grayScaleToAlpha: 0[m
+[31m-  generateCubemap: 6[m
+[31m-  cubemapConvolution: 0[m
+[31m-  seamlessCubemap: 0[m
+[31m-  textureFormat: 1[m
+[31m-  maxTextureSize: 2048[m
+[31m-  textureSettings:[m
+[31m-    serializedVersion: 2[m
+[31m-    filterMode: 1[m
+[31m-    aniso: 1[m
+[31m-    mipBias: 0[m
+[31m-    wrapU: 1[m
+[31m-    wrapV: 1[m
+[31m-    wrapW: 1[m
+[31m-  nPOTScale: 0[m
+[31m-  lightmap: 0[m
+[31m-  compressionQuality: 50[m
+[31m-  spriteMode: 1[m
+[31m-  spriteExtrude: 1[m
+[31m-  spriteMeshType: 1[m
+[31m-  alignment: 0[m
+[31m-  spritePivot: {x: 0.5, y: 0.5}[m
+[31m-  spritePixelsToUnits: 100[m
+[31m-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}[m
+[31m-  spriteGenerateFallbackPhysicsShape: 1[m
+[31m-  alphaUsage: 1[m
+[31m-  alphaIsTransparency: 1[m
+[31m-  spriteTessellationDetail: -1[m
+[31m-  textureType: 8[m
+[31m-  textureShape: 1[m
+[31m-  singleChannelComponent: 0[m
+[31m-  flipbookRows: 1[m
+[31m-  flipbookColumns: 1[m
+[31m-  maxTextureSizeSet: 0[m
+[31m-  compressionQualitySet: 0[m
+[31m-  textureFormatSet: 0[m
+[31m-  ignorePngGamma: 0[m
+[31m-  applyGammaDecoding: 0[m
+[31m-  swizzle: 50462976[m
+[31m-  cookieLightType: 0[m
+[31m-  platformSettings:[m
+[31m-  - serializedVersion: 3[m
+[31m-    buildTarget: DefaultTexturePlatform[m
+[31m-    maxTextureSize: 2048[m
+[31m-    resizeAlgorithm: 0[m
+[31m-    textureFormat: -1[m
+[31m-    textureCompression: 1[m
+[31m-    compressionQuality: 50[m
+[31m-    crunchedCompression: 0[m
+[31m-    allowsAlphaSplitting: 0[m
+[31m-    overridden: 0[m
+[31m-    ignorePlatformSupport: 0[m
+[31m-    androidETC2FallbackOverride: 0[m
+[31m-    forceMaximumCompressionQuality_BC6H_BC7: 0[m
+[31m-  - serializedVersion: 3[m
+[31m-    buildTarget: Standalone[m
+[31m-    maxTextureSize: 2048[m
+[31m-    resizeAlgorithm: 0[m
+[31m-    textureFormat: -1[m
+[31m-    textureCompression: 1[m
+[31m-    compressionQuality: 50[m
+[31m-    crunchedCompression: 0[m
+[31m-    allowsAlphaSplitting: 0[m
+[31m-    overridden: 0[m
+[31m-    ignorePlatformSupport: 0[m
+[31m-    androidETC2FallbackOverride: 0[m
+[31m-    forceMaximumCompressionQuality_BC6H_BC7: 0[m
+[31m-  spriteSheet:[m
+[31m-    serializedVersion: 2[m
+[31m-    sprites: [][m
+[31m-    outline: [][m
+[31m-    physicsShape: [][m
+[31m-    bones: [][m
+[31m-    spriteID: 5e97eb03825dee720800000000000000[m
+[31m-    internalID: 0[m
+[31m-    vertices: [][m
+[31m-    indices: [m
+[31m-    edges: [][m
+[31m-    weights: [][m
+[31m-    secondaryTextures: [][m
+[31m-    nameFileIdTable: {}[m
+[31m-  mipmapLimitGroupName: [m
+[31m-  pSDRemoveMatte: 0[m
+[31m-  userData: [m
+[31m-  assetBundleName: [m
+[31m-  assetBundleVariant: [m
+[1mdiff --git a/Assets/Resources/FigmaUI/main menu.unity b/Assets/Resources/FigmaUI/main menu.unity[m
+[1mdeleted file mode 100644[m
+[1mindex c1c5323..0000000[m
+[1m--- a/Assets/Resources/FigmaUI/main menu.unity[m	
+[1m+++ /dev/null[m
+[36m@@ -1,947 +0,0 @@[m
+[31m-%YAML 1.1[m
+[31m-%TAG !u! tag:unity3d.com,2011:[m
+[31m---- !u!29 &1[m
+[31m-OcclusionCullingSettings:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  serializedVersion: 2[m
+[31m-  m_OcclusionBakeSettings:[m
+[31m-    smallestOccluder: 5[m
+[31m-    smallestHole: 0.25[m
+[31m-    backfaceThreshold: 100[m
+[31m-  m_SceneGUID: 00000000000000000000000000000000[m
+[31m-  m_OcclusionCullingData: {fileID: 0}[m
+[31m---- !u!104 &2[m
+[31m-RenderSettings:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  serializedVersion: 9[m
+[31m-  m_Fog: 0[m
+[31m-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}[m
+[31m-  m_FogMode: 3[m
+[31m-  m_FogDensity: 0.01[m
+[31m-  m_LinearFogStart: 0[m
+[31m-  m_LinearFogEnd: 300[m
+[31m-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}[m
+[31m-  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}[m
+[31m-  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}[m
+[31m-  m_AmbientIntensity: 1[m
+[31m-  m_AmbientMode: 3[m
+[31m-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}[m
+[31m-  m_SkyboxMaterial: {fileID: 0}[m
+[31m-  m_HaloStrength: 0.5[m
+[31m-  m_FlareStrength: 1[m
+[31m-  m_FlareFadeSpeed: 3[m
+[31m-  m_HaloTexture: {fileID: 0}[m
+[31m-  m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}[m
+[31m-  m_DefaultReflectionMode: 0[m
+[31m-  m_DefaultReflectionResolution: 128[m
+[31m-  m_ReflectionBounces: 1[m
+[31m-  m_ReflectionIntensity: 1[m
+[31m-  m_CustomReflection: {fileID: 0}[m
+[31m-  m_Sun: {fileID: 0}[m
+[31m-  m_UseRadianceAmbientProbe: 0[m
+[31m---- !u!157 &3[m
+[31m-LightmapSettings:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  serializedVersion: 12[m
+[31m-  m_GIWorkflowMode: 1[m
+[31m-  m_GISettings:[m
+[31m-    serializedVersion: 2[m
+[31m-    m_BounceScale: 1[m
+[31m-    m_IndirectOutputScale: 1[m
+[31m-    m_AlbedoBoost: 1[m
+[31m-    m_EnvironmentLightingMode: 0[m
+[31m-    m_EnableBakedLightmaps: 0[m
+[31m-    m_EnableRealtimeLightmaps: 0[m
+[31m-  m_LightmapEditorSettings:[m
+[31m-    serializedVersion: 12[m
+[31m-    m_Resolution: 2[m
+[31m-    m_BakeResolution: 40[m
+[31m-    m_AtlasSize: 1024[m
+[31m-    m_AO: 0[m
+[31m-    m_AOMaxDistance: 1[m
+[31m-    m_CompAOExponent: 1[m
+[31m-    m_CompAOExponentDirect: 0[m
+[31m-    m_ExtractAmbientOcclusion: 0[m
+[31m-    m_Padding: 2[m
+[31m-    m_LightmapParameters: {fileID: 0}[m
+[31m-    m_LightmapsBakeMode: 1[m
+[31m-    m_TextureCompression: 1[m
+[31m-    m_FinalGather: 0[m
+[31m-    m_FinalGatherFiltering: 1[m
+[31m-    m_FinalGatherRayCount: 256[m
+[31m-    m_ReflectionCompression: 2[m
+[31m-    m_MixedBakeMode: 2[m
+[31m-    m_BakeBackend: 1[m
+[31m-    m_PVRSampling: 1[m
+[31m-    m_PVRDirectSampleCount: 32[m
+[31m-    m_PVRSampleCount: 512[m
+[31m-    m_PVRBounces: 2[m
+[31m-    m_PVREnvironmentSampleCount: 256[m
+[31m-    m_PVREnvironmentReferencePointCount: 2048[m
+[31m-    m_PVRFilteringMode: 1[m
+[31m-    m_PVRDenoiserTypeDirect: 1[m
+[31m-    m_PVRDenoiserTypeIndirect: 1[m
+[31m-    m_PVRDenoiserTypeAO: 1[m
+[31m-    m_PVRFilterTypeDirect: 0[m
+[31m-    m_PVRFilterTypeIndirect: 0[m
+[31m-    m_PVRFilterTypeAO: 0[m
+[31m-    m_PVREnvironmentMIS: 1[m
+[31m-    m_PVRCulling: 1[m
+[31m-    m_PVRFilteringGaussRadiusDirect: 1[m
+[31m-    m_PVRFilteringGaussRadiusIndirect: 5[m
+[31m-    m_PVRFilteringGaussRadiusAO: 2[m
+[31m-    m_PVRFilteringAtrousPositionSigmaDirect: 0.5[m
+[31m-    m_PVRFilteringAtrousPositionSigmaIndirect: 2[m
+[31m-    m_PVRFilteringAtrousPositionSigmaAO: 1[m
+[31m-    m_ExportTrainingData: 0[m
+[31m-    m_TrainingDataDestination: TrainingData[m
+[31m-    m_LightProbeSampleCountMultiplier: 4[m
+[31m-  m_LightingDataAsset: {fileID: 0}[m
+[31m-  m_LightingSettings: {fileID: 0}[m
+[31m---- !u!196 &4[m
+[31m-NavMeshSettings:[m
+[31m-  serializedVersion: 2[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_BuildSettings:[m
+[31m-    serializedVersion: 3[m
+[31m-    agentTypeID: 0[m
+[31m-    agentRadius: 0.5[m
+[31m-    agentHeight: 2[m
+[31m-    agentSlope: 45[m
+[31m-    agentClimb: 0.4[m
+[31m-    ledgeDropHeight: 0[m
+[31m-    maxJumpAcrossDistance: 0[m
+[31m-    minRegionArea: 2[m
+[31m-    manualCellSize: 0[m
+[31m-    cellSize: 0.16666667[m
+[31m-    manualTileSize: 0[m
+[31m-    tileSize: 256[m
+[31m-    buildHeightMesh: 0[m
+[31m-    maxJobWorkers: 0[m
+[31m-    preserveTilesOutsideBounds: 0[m
+[31m-    debug:[m
+[31m-      m_Flags: 0[m
+[31m-  m_NavMeshData: {fileID: 0}[m
+[31m---- !u!1 &197022903[m
+[31m-GameObject:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  serializedVersion: 6[m
+[31m-  m_Component:[m
+[31m-  - component: {fileID: 197022904}[m
+[31m-  - component: {fileID: 197022905}[m
+[31m-  m_Layer: 0[m
+[31m-  m_Name: background[m
+[31m-  m_TagString: Untagged[m
+[31m-  m_Icon: {fileID: 0}[m
+[31m-  m_NavMeshLayer: 0[m
+[31m-  m_StaticEditorFlags: 0[m
+[31m-  m_IsActive: 1[m
+[31m---- !u!4 &197022904[m
+[31m-Transform:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 197022903}[m
+[31m-  serializedVersion: 2[m
+[31m-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}[m
+[31m-  m_LocalPosition: {x: -489, y: -253.33334, z: 0}[m
+[31m-  m_LocalScale: {x: 1, y: 1, z: 1}[m
+[31m-  m_ConstrainProportionsScale: 0[m
+[31m-  m_Children: [][m
+[31m-  m_Father: {fileID: 916300315}[m
+[31m-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}[m
+[31m---- !u!212 &197022905[m
+[31m-SpriteRenderer:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 197022903}[m
+[31m-  m_Enabled: 1[m
+[31m-  m_CastShadows: 0[m
+[31m-  m_ReceiveShadows: 0[m
+[31m-  m_DynamicOccludee: 1[m
+[31m-  m_StaticShadowCaster: 0[m
+[31m-  m_MotionVectors: 1[m
+[31m-  m_LightProbeUsage: 1[m
+[31m-  m_ReflectionProbeUsage: 1[m
+[31m-  m_RayTracingMode: 0[m
+[31m-  m_RayTraceProcedural: 0[m
+[31m-  m_RenderingLayerMask: 1[m
+[31m-  m_RendererPriority: 0[m
+[31m-  m_Materials:[m
+[31m-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}[m
+[31m-  m_StaticBatchInfo:[m
+[31m-    firstSubMesh: 0[m
+[31m-    subMeshCount: 0[m
+[31m-  m_StaticBatchRoot: {fileID: 0}[m
+[31m-  m_ProbeAnchor: {fileID: 0}[m
+[31m-  m_LightProbeVolumeOverride: {fileID: 0}[m
+[31m-  m_ScaleInLightmap: 1[m
+[31m-  m_ReceiveGI: 1[m
+[31m-  m_PreserveUVs: 0[m
+[31m-  m_IgnoreNormalsForChartDetection: 0[m
+[31m-  m_ImportantGI: 0[m
+[31m-  m_StitchLightmapSeams: 1[m
+[31m-  m_SelectedEditorRenderState: 0[m
+[31m-  m_MinimumChartSize: 4[m
+[31m-  m_AutoUVMaxDistance: 0.5[m
+[31m-  m_AutoUVMaxAngle: 89[m
+[31m-  m_LightmapParameters: {fileID: 0}[m
+[31m-  m_SortingLayerID: 0[m
+[31m-  m_SortingLayer: 0[m
+[31m-  m_SortingOrder: 0[m
+[31m-  m_Sprite: {fileID: 21300000, guid: 1d55f5e57a483c440b4adca8e16461ce, type: 3}[m
+[31m-  m_Color: {r: 1, g: 1, b: 1, a: 1}[m
+[31m-  m_FlipX: 0[m
+[31m-  m_FlipY: 0[m
+[31m-  m_DrawMode: 0[m
+[31m-  m_Size: {x: 19.2, y: 10.8}[m
+[31m-  m_AdaptiveModeThreshold: 0.5[m
+[31m-  m_SpriteTileMode: 0[m
+[31m-  m_WasSpriteAssigned: 1[m
+[31m-  m_MaskInteraction: 0[m
+[31m-  m_SpriteSortPoint: 0[m
+[31m---- !u!1 &229636698[m
+[31m-GameObject:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  serializedVersion: 6[m
+[31m-  m_Component:[m
+[31m-  - component: {fileID: 229636699}[m
+[31m-  - component: {fileID: 229636700}[m
+[31m-  m_Layer: 0[m
+[31m-  m_Name: character[m
+[31m-  m_TagString: Untagged[m
+[31m-  m_Icon: {fileID: 0}[m
+[31m-  m_NavMeshLayer: 0[m
+[31m-  m_StaticEditorFlags: 0[m
+[31m-  m_IsActive: 1[m
+[31m---- !u!4 &229636699[m
+[31m-Transform:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 229636698}[m
+[31m-  serializedVersion: 2[m
+[31m-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}[m
+[31m-  m_LocalPosition: {x: -489, y: -253.33334, z: 0}[m
+[31m-  m_LocalScale: {x: 1, y: 1, z: 1}[m
+[31m-  m_ConstrainProportionsScale: 0[m
+[31m-  m_Children: [][m
+[31m-  m_Father: {fileID: 916300315}[m
+[31m-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}[m
+[31m---- !u!212 &229636700[m
+[31m-SpriteRenderer:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 229636698}[m
+[31m-  m_Enabled: 1[m
+[31m-  m_CastShadows: 0[m
+[31m-  m_ReceiveShadows: 0[m
+[31m-  m_DynamicOccludee: 1[m
+[31m-  m_StaticShadowCaster: 0[m
+[31m-  m_MotionVectors: 1[m
+[31m-  m_LightProbeUsage: 1[m
+[31m-  m_ReflectionProbeUsage: 1[m
+[31m-  m_RayTracingMode: 0[m
+[31m-  m_RayTraceProcedural: 0[m
+[31m-  m_RenderingLayerMask: 1[m
+[31m-  m_RendererPriority: 0[m
+[31m-  m_Materials:[m
+[31m-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}[m
+[31m-  m_StaticBatchInfo:[m
+[31m-    firstSubMesh: 0[m
+[31m-    subMeshCount: 0[m
+[31m-  m_StaticBatchRoot: {fileID: 0}[m
+[31m-  m_ProbeAnchor: {fileID: 0}[m
+[31m-  m_LightProbeVolumeOverride: {fileID: 0}[m
+[31m-  m_ScaleInLightmap: 1[m
+[31m-  m_ReceiveGI: 1[m
+[31m-  m_PreserveUVs: 0[m
+[31m-  m_IgnoreNormalsForChartDetection: 0[m
+[31m-  m_ImportantGI: 0[m
+[31m-  m_StitchLightmapSeams: 1[m
+[31m-  m_SelectedEditorRenderState: 0[m
+[31m-  m_MinimumChartSize: 4[m
+[31m-  m_AutoUVMaxDistance: 0.5[m
+[31m-  m_AutoUVMaxAngle: 89[m
+[31m-  m_LightmapParameters: {fileID: 0}[m
+[31m-  m_SortingLayerID: 0[m
+[31m-  m_SortingLayer: 0[m
+[31m-  m_SortingOrder: 0[m
+[31m-  m_Sprite: {fileID: 21300000, guid: 48be3f05bd2f3884287828ce9bbd8c8c, type: 3}[m
+[31m-  m_Color: {r: 1, g: 1, b: 1, a: 1}[m
+[31m-  m_FlipX: 0[m
+[31m-  m_FlipY: 0[m
+[31m-  m_DrawMode: 0[m
+[31m-  m_Size: {x: 14.01, y: 9.88}[m
+[31m-  m_AdaptiveModeThreshold: 0.5[m
+[31m-  m_SpriteTileMode: 0[m
+[31m-  m_WasSpriteAssigned: 1[m
+[31m-  m_MaskInteraction: 0[m
+[31m-  m_SpriteSortPoint: 0[m
+[31m---- !u!1 &430564893[m
+[31m-GameObject:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  serializedVersion: 6[m
+[31m-  m_Component:[m
+[31m-  - component: {fileID: 430564894}[m
+[31m-  - component: {fileID: 430564895}[m
+[31m-  m_Layer: 0[m
+[31m-  m_Name: start[m
+[31m-  m_TagString: Untagged[m
+[31m-  m_Icon: {fileID: 0}[m
+[31m-  m_NavMeshLayer: 0[m
+[31m-  m_StaticEditorFlags: 0[m
+[31m-  m_IsActive: 1[m
+[31m---- !u!4 &430564894[m
+[31m-Transform:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 430564893}[m
+[31m-  serializedVersion: 2[m
+[31m-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}[m
+[31m-  m_LocalPosition: {x: -489, y: -253.33334, z: 0}[m
+[31m-  m_LocalScale: {x: 1, y: 1, z: 1}[m
+[31m-  m_ConstrainProportionsScale: 0[m
+[31m-  m_Children: [][m
+[31m-  m_Father: {fileID: 916300315}[m
+[31m-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}[m
+[31m---- !u!212 &430564895[m
+[31m-SpriteRenderer:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 430564893}[m
+[31m-  m_Enabled: 1[m
+[31m-  m_CastShadows: 0[m
+[31m-  m_ReceiveShadows: 0[m
+[31m-  m_DynamicOccludee: 1[m
+[31m-  m_StaticShadowCaster: 0[m
+[31m-  m_MotionVectors: 1[m
+[31m-  m_LightProbeUsage: 1[m
+[31m-  m_ReflectionProbeUsage: 1[m
+[31m-  m_RayTracingMode: 0[m
+[31m-  m_RayTraceProcedural: 0[m
+[31m-  m_RenderingLayerMask: 1[m
+[31m-  m_RendererPriority: 0[m
+[31m-  m_Materials:[m
+[31m-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}[m
+[31m-  m_StaticBatchInfo:[m
+[31m-    firstSubMesh: 0[m
+[31m-    subMeshCount: 0[m
+[31m-  m_StaticBatchRoot: {fileID: 0}[m
+[31m-  m_ProbeAnchor: {fileID: 0}[m
+[31m-  m_LightProbeVolumeOverride: {fileID: 0}[m
+[31m-  m_ScaleInLightmap: 1[m
+[31m-  m_ReceiveGI: 1[m
+[31m-  m_PreserveUVs: 0[m
+[31m-  m_IgnoreNormalsForChartDetection: 0[m
+[31m-  m_ImportantGI: 0[m
+[31m-  m_StitchLightmapSeams: 1[m
+[31m-  m_SelectedEditorRenderState: 0[m
+[31m-  m_MinimumChartSize: 4[m
+[31m-  m_AutoUVMaxDistance: 0.5[m
+[31m-  m_AutoUVMaxAngle: 89[m
+[31m-  m_LightmapParameters: {fileID: 0}[m
+[31m-  m_SortingLayerID: 0[m
+[31m-  m_SortingLayer: 0[m
+[31m-  m_SortingOrder: 0[m
+[31m-  m_Sprite: {fileID: 21300000, guid: 78b596784e674a24fa8be1b520b4ad41, type: 3}[m
+[31m-  m_Color: {r: 1, g: 1, b: 1, a: 1}[m
+[31m-  m_FlipX: 0[m
+[31m-  m_FlipY: 0[m
+[31m-  m_DrawMode: 0[m
+[31m-  m_Size: {x: 4.03, y: 1.01}[m
+[31m-  m_AdaptiveModeThreshold: 0.5[m
+[31m-  m_SpriteTileMode: 0[m
+[31m-  m_WasSpriteAssigned: 1[m
+[31m-  m_MaskInteraction: 0[m
+[31m-  m_SpriteSortPoint: 0[m
+[31m---- !u!1 &534594323[m
+[31m-GameObject:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  serializedVersion: 6[m
+[31m-  m_Component:[m
+[31m-  - component: {fileID: 534594327}[m
+[31m-  - component: {fileID: 534594326}[m
+[31m-  - component: {fileID: 534594325}[m
+[31m-  - component: {fileID: 534594324}[m
+[31m-  m_Layer: 0[m
+[31m-  m_Name: Main Camera[m
+[31m-  m_TagString: MainCamera[m
+[31m-  m_Icon: {fileID: 0}[m
+[31m-  m_NavMeshLayer: 0[m
+[31m-  m_StaticEditorFlags: 0[m
+[31m-  m_IsActive: 1[m
+[31m---- !u!114 &534594324[m
+[31m-MonoBehaviour:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 534594323}[m
+[31m-  m_Enabled: 1[m
+[31m-  m_EditorHideFlags: 0[m
+[31m-  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}[m
+[31m-  m_Name: [m
+[31m-  m_EditorClassIdentifier: [m
+[31m-  m_RenderShadows: 1[m
+[31m-  m_RequiresDepthTextureOption: 2[m
+[31m-  m_RequiresOpaqueTextureOption: 2[m
+[31m-  m_CameraType: 0[m
+[31m-  m_Cameras: [][m
+[31m-  m_RendererIndex: -1[m
+[31m-  m_VolumeLayerMask:[m
+[31m-    serializedVersion: 2[m
+[31m-    m_Bits: 1[m
+[31m-  m_VolumeTrigger: {fileID: 0}[m
+[31m-  m_VolumeFrameworkUpdateModeOption: 2[m
+[31m-  m_RenderPostProcessing: 0[m
+[31m-  m_Antialiasing: 0[m
+[31m-  m_AntialiasingQuality: 2[m
+[31m-  m_StopNaN: 0[m
+[31m-  m_Dithering: 0[m
+[31m-  m_ClearDepth: 1[m
+[31m-  m_AllowXRRendering: 1[m
+[31m-  m_AllowHDROutput: 1[m
+[31m-  m_UseScreenCoordOverride: 0[m
+[31m-  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}[m
+[31m-  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}[m
+[31m-  m_RequiresDepthTexture: 0[m
+[31m-  m_RequiresColorTexture: 0[m
+[31m-  m_Version: 2[m
+[31m-  m_TaaSettings:[m
+[31m-    m_Quality: 3[m
+[31m-    m_FrameInfluence: 0.1[m
+[31m-    m_JitterScale: 1[m
+[31m-    m_MipBias: 0[m
+[31m-    m_VarianceClampScale: 0.9[m
+[31m-    m_ContrastAdaptiveSharpening: 0[m
+[31m---- !u!81 &534594325[m
+[31m-AudioListener:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 534594323}[m
+[31m-  m_Enabled: 1[m
+[31m---- !u!20 &534594326[m
+[31m-Camera:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 534594323}[m
+[31m-  m_Enabled: 1[m
+[31m-  serializedVersion: 2[m
+[31m-  m_ClearFlags: 1[m
+[31m-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}[m
+[31m-  m_projectionMatrixMode: 1[m
+[31m-  m_GateFitMode: 2[m
+[31m-  m_FOVAxisMode: 0[m
+[31m-  m_Iso: 200[m
+[31m-  m_ShutterSpeed: 0.005[m
+[31m-  m_Aperture: 16[m
+[31m-  m_FocusDistance: 10[m
+[31m-  m_FocalLength: 50[m
+[31m-  m_BladeCount: 5[m
+[31m-  m_Curvature: {x: 2, y: 11}[m
+[31m-  m_BarrelClipping: 0.25[m
+[31m-  m_Anamorphism: 0[m
+[31m-  m_SensorSize: {x: 36, y: 24}[m
+[31m-  m_LensShift: {x: 0, y: 0}[m
+[31m-  m_NormalizedViewPortRect:[m
+[31m-    serializedVersion: 2[m
+[31m-    x: 0[m
+[31m-    y: 0[m
+[31m-    width: 1[m
+[31m-    height: 1[m
+[31m-  near clip plane: 0.3[m
+[31m-  far clip plane: 1000[m
+[31m-  field of view: 60[m
+[31m-  orthographic: 1[m
+[31m-  orthographic size: 5[m
+[31m-  m_Depth: -1[m
+[31m-  m_CullingMask:[m
+[31m-    serializedVersion: 2[m
+[31m-    m_Bits: 4294967295[m
+[31m-  m_RenderingPath: -1[m
+[31m-  m_TargetTexture: {fileID: 0}[m
+[31m-  m_TargetDisplay: 0[m
+[31m-  m_TargetEye: 3[m
+[31m-  m_HDR: 1[m
+[31m-  m_AllowMSAA: 1[m
+[31m-  m_AllowDynamicResolution: 0[m
+[31m-  m_ForceIntoRT: 0[m
+[31m-  m_OcclusionCulling: 1[m
+[31m-  m_StereoConvergence: 10[m
+[31m-  m_StereoSeparation: 0.022[m
+[31m---- !u!4 &534594327[m
+[31m-Transform:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 534594323}[m
+[31m-  serializedVersion: 2[m
+[31m-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}[m
+[31m-  m_LocalPosition: {x: 0, y: 0, z: -10}[m
+[31m-  m_LocalScale: {x: 1, y: 1, z: 1}[m
+[31m-  m_ConstrainProportionsScale: 0[m
+[31m-  m_Children: [][m
+[31m-  m_Father: {fileID: 0}[m
+[31m-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}[m
+[31m---- !u!1 &916300311[m
+[31m-GameObject:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  serializedVersion: 6[m
+[31m-  m_Component:[m
+[31m-  - component: {fileID: 916300315}[m
+[31m-  - component: {fileID: 916300314}[m
+[31m-  - component: {fileID: 916300313}[m
+[31m-  - component: {fileID: 916300312}[m
+[31m-  m_Layer: 5[m
+[31m-  m_Name: Canvas[m
+[31m-  m_TagString: Untagged[m
+[31m-  m_Icon: {fileID: 0}[m
+[31m-  m_NavMeshLayer: 0[m
+[31m-  m_StaticEditorFlags: 0[m
+[31m-  m_IsActive: 1[m
+[31m---- !u!114 &916300312[m
+[31m-MonoBehaviour:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 916300311}[m
+[31m-  m_Enabled: 1[m
+[31m-  m_EditorHideFlags: 0[m
+[31m-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}[m
+[31m-  m_Name: [m
+[31m-  m_EditorClassIdentifier: [m
+[31m-  m_IgnoreReversedGraphics: 1[m
+[31m-  m_BlockingObjects: 0[m
+[31m-  m_BlockingMask:[m
+[31m-    serializedVersion: 2[m
+[31m-    m_Bits: 4294967295[m
+[31m---- !u!114 &916300313[m
+[31m-MonoBehaviour:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 916300311}[m
+[31m-  m_Enabled: 1[m
+[31m-  m_EditorHideFlags: 0[m
+[31m-  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}[m
+[31m-  m_Name: [m
+[31m-  m_EditorClassIdentifier: [m
+[31m-  m_UiScaleMode: 0[m
+[31m-  m_ReferencePixelsPerUnit: 100[m
+[31m-  m_ScaleFactor: 1[m
+[31m-  m_ReferenceResolution: {x: 800, y: 600}[m
+[31m-  m_ScreenMatchMode: 0[m
+[31m-  m_MatchWidthOrHeight: 0[m
+[31m-  m_PhysicalUnit: 3[m
+[31m-  m_FallbackScreenDPI: 96[m
+[31m-  m_DefaultSpriteDPI: 96[m
+[31m-  m_DynamicPixelsPerUnit: 1[m
+[31m-  m_PresetInfoIsWorld: 0[m
+[31m---- !u!223 &916300314[m
+[31m-Canvas:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 916300311}[m
+[31m-  m_Enabled: 1[m
+[31m-  serializedVersion: 3[m
+[31m-  m_RenderMode: 0[m
+[31m-  m_Camera: {fileID: 0}[m
+[31m-  m_PlaneDistance: 100[m
+[31m-  m_PixelPerfect: 0[m
+[31m-  m_ReceivesEvents: 1[m
+[31m-  m_OverrideSorting: 0[m
+[31m-  m_OverridePixelPerfect: 0[m
+[31m-  m_SortingBucketNormalizedSize: 0[m
+[31m-  m_VertexColorAlwaysGammaSpace: 0[m
+[31m-  m_AdditionalShaderChannelsFlag: 0[m
+[31m-  m_UpdateRectTransformForStandalone: 0[m
+[31m-  m_SortingLayerID: 0[m
+[31m-  m_SortingOrder: 0[m
+[31m-  m_TargetDisplay: 0[m
+[31m---- !u!224 &916300315[m
+[31m-RectTransform:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  m_GameObject: {fileID: 916300311}[m
+[31m-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}[m
+[31m-  m_LocalPosition: {x: 0, y: 0, z: 0}[m
+[31m-  m_LocalScale: {x: 0, y: 0, z: 0}[m
+[31m-  m_ConstrainProportionsScale: 0[m
+[31m-  m_Children:[m
+[31m-  - {fileID: 1234361651}[m
+[31m-  - {fileID: 1000181042}[m
+[31m-  - {fileID: 1115644454}[m
+[31m-  - {fileID: 430564894}[m
+[31m-  - {fileID: 229636699}[m
+[31m-  - {fileID: 197022904}[m
+[31m-  m_Father: {fileID: 0}[m
+[31m-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}[m
+[31m-  m_AnchorMin: {x: 0, y: 0}[m
+[31m-  m_AnchorMax: {x: 0, y: 0}[m
+[31m-  m_AnchoredPosition: {x: 0, y: 0}[m
+[31m-  m_SizeDelta: {x: 0, y: 0}[m
+[31m-  m_Pivot: {x: 0, y: 0}[m
+[31m---- !u!1 &1000181041[m
+[31m-GameObject:[m
+[31m-  m_ObjectHideFlags: 0[m
+[31m-  m_CorrespondingSourceObject: {fileID: 0}[m
+[31m-  m_PrefabInstance: {fileID: 0}[m
+[31m-  m_PrefabAsset: {fileID: 0}[m
+[31m-  seri
