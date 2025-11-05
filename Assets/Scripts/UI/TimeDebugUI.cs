@@ -24,7 +24,7 @@ namespace ProjectSulamith.UI
         public TMP_Text infoText;
 
         // 当前缓存数据
-        private TimeMode _currentMode = TimeMode.Simulation;
+        private TimeMode _currentMode = TimeMode.Realtime;
         private float _currentSpeed = 0f;
         private float _customMultiplier = 1f;
         private float _gameMinutes = 0f;

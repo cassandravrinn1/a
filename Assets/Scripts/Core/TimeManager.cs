@@ -51,7 +51,7 @@ namespace ProjectSulamith.Core
         [SerializeField] private float maxMultiplier = 4f;
 
         [Header("当前状态信息")]
-        public TimeMode CurrentMode = TimeMode.Simulation;
+        public TimeMode CurrentMode = TimeMode.Realtime;
         public float GameTimeMinutes = 0f;
         public float CurrentSpeed;   // 当前实际速率
         public float TargetSpeed;    // 目标速率（插值目标）
@@ -66,21 +66,54 @@ namespace ProjectSulamith.Core
 
         private void Awake()
         {
-            // 确保单例唯一
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
-
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            CurrentSpeed = simulationBaseSpeed * customSpeedMultiplier;
-            TargetSpeed = CurrentSpeed;
+            // 依据当前模式设置初始速率（避免被序列化残留影响）
+            switch (CurrentMode)
+            {
+                case TimeMode.Simulation:
+                    customSpeedMultiplier = Mathf.Clamp(customSpeedMultiplier, minMultiplier, maxMultiplier);
+                    CurrentSpeed = simulationBaseSpeed * customSpeedMultiplier;
+                    break;
 
-            // 订阅来自 UI 的时间控制指令事件
+                case TimeMode.Realtime:
+                default:
+                    customSpeedMultiplier = 1f;                 // Realtime 忽略倍速
+                    CurrentSpeed = realtimeSpeed;               // 直接用实时速率
+                    break;
+
+                case TimeMode.Paused:
+                    customSpeedMultiplier = 1f;
+                    CurrentSpeed = 0f;
+                    break;
+
+                case TimeMode.Transition:
+                    // 过渡模式仅用于切换过程；这里给个中间值，也可直接设为 Realtime
+                    customSpeedMultiplier = 1f;
+                    CurrentSpeed = (simulationBaseSpeed + realtimeSpeed) * 0.5f;
+                    break;
+            }
+
+            TargetSpeed = CurrentSpeed;
+            _lastBroadcastSpeed = CurrentSpeed; // 防止下一帧重复广播
+
+            // 订阅事件
             EventBus.Instance?.Subscribe<TimeControlEvent>(OnTimeControlEvent);
+
+            // 广播一次初始状态（让 UI/系统拿到正确起始模式与速率）
+            EventBus.Instance?.Publish(new TimeModeChangedEvent { NewMode = CurrentMode });
+            EventBus.Instance?.Publish(new SpeedChangedEvent
+            {
+                NewSpeed = CurrentSpeed,
+                CustomMultiplier = customSpeedMultiplier,
+                Mode = CurrentMode
+            });
         }
 
         private void OnDestroy()
