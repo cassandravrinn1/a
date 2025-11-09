@@ -1,0 +1,396 @@
+{
+  "id": "2:2",
+  "name": "Frame 1",
+  "type": "FRAME",
+  "children": [
+    {
+      "id": "2:3",
+      "name": "44c248d9a75c6db7ddbe62f444938b99 1",
+      "type": "RECTANGLE",
+      "children": [],
+      "components": [
+        {
+          "component": "RectTransform",
+          "width": 1920,
+          "height": 1355,
+          "x": 0,
+          "y": 275,
+          "rotation": 0
+        },
+        {
+          "component": "Image",
+          "sourceImage": "image_2_3.png",
+          "color": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "2:4",
+      "name": "f5c6e9d6fc426260ece1bc9870ff78b4 1",
+      "type": "RECTANGLE",
+      "children": [],
+      "components": [
+        {
+          "component": "RectTransform",
+          "width": 1401,
+          "height": 988,
+          "x": 491,
+          "y": -92,
+          "rotation": 0
+        },
+        {
+          "component": "Image",
+          "sourceImage": "image_2_4.png",
+          "color": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "2:5",
+      "name": "start",
+      "type": "COMPONENT",
+      "children": [
+        {
+          "id": "2:6",
+          "name": "start",
+          "type": "VECTOR",
+          "children": [],
+          "components": [
+            {
+              "component": "RectTransform",
+              "width": 395,
+              "height": 97,
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            }
+          ]
+        },
+        {
+          "id": "2:7",
+          "name": "start_txt",
+          "type": "TEXT",
+          "children": [],
+          "components": [
+            {
+              "component": "RectTransform",
+              "width": 128,
+              "height": 77,
+              "x": 120,
+              "y": -10,
+              "rotation": 0
+            },
+            {
+              "component": "Text",
+              "text": "开始",
+              "font": "Inter",
+              "fontWeight": "Regular",
+              "fontSize": 64,
+              "color": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 1
+              },
+              "horizontalAlign": "CENTER",
+              "verticalAlign": "CENTER"
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "component": "RectTransform",
+          "width": 395,
+          "height": 97,
+          "x": 258,
+          "y": -443,
+          "rotation": 0
+        },
+        {
+          "component": "Image",
+          "sourceImage": "image_2_5.png",
+          "color": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "5:4",
+      "name": "continue",
+      "type": "COMPONENT",
+      "children": [
+        {
+          "id": "4:33",
+          "name": "continue",
+          "type": "VECTOR",
+          "children": [],
+          "components": [
+            {
+              "component": "RectTransform",
+              "width": 395,
+              "height": 97,
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            }
+          ]
+        },
+        {
+          "id": "4:34",
+          "name": "continue",
+          "type": "TEXT",
+          "children": [],
+          "components": [
+            {
+              "component": "RectTransform",
+              "width": 128,
+              "height": 77,
+              "x": 120,
+              "y": -10,
+              "rotation": 0
+            },
+            {
+              "component": "Text",
+              "text": "继续",
+              "font": "Inter",
+              "fontWeight": "Regular",
+              "fontSize": 64,
+              "color": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 1
+              },
+              "horizontalAlign": "CENTER",
+              "verticalAlign": "CENTER"
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "component": "RectTransform",
+          "width": 395,
+          "height": 97,
+          "x": 258,
+          "y": -586,
+          "rotation": 0
+        },
+        {
+          "component": "Image",
+          "sourceImage": "image_5_4.png",
+          "color": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "5:3",
+      "name": "options",
+      "type": "COMPONENT",
+      "children": [
+        {
+          "id": "4:36",
+          "name": "options",
+          "type": "VECTOR",
+          "children": [],
+          "components": [
+            {
+              "component": "RectTransform",
+              "width": 395,
+              "height": 97,
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            }
+          ]
+        },
+        {
+          "id": "4:37",
+          "name": "options",
+          "type": "TEXT",
+          "children": [],
+          "components": [
+            {
+              "component": "RectTransform",
+              "width": 128,
+              "height": 77,
+              "x": 120,
+              "y": -10,
+              "rotation": 0
+            },
+            {
+              "component": "Text",
+              "text": "设置",
+              "font": "Inter",
+              "fontWeight": "Regular",
+              "fontSize": 64,
+              "color": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 1
+              },
+              "horizontalAlign": "CENTER",
+              "verticalAlign": "CENTER"
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "component": "RectTransform",
+          "width": 395,
+          "height": 97,
+          "x": 258,
+          "y": -729,
+          "rotation": 0
+        },
+        {
+          "component": "Image",
+          "sourceImage": "image_5_3.png",
+          "color": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "5:2",
+      "name": "exit",
+      "type": "COMPONENT",
+      "children": [
+        {
+          "id": "4:39",
+          "name": "exit",
+          "type": "VECTOR",
+          "children": [],
+          "components": [
+            {
+              "component": "RectTransform",
+              "width": 395,
+              "height": 97,
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            }
+          ]
+        },
+        {
+          "id": "4:40",
+          "name": "exit",
+          "type": "TEXT",
+          "children": [],
+          "components": [
+            {
+              "component": "RectTransform",
+              "width": 128,
+              "height": 77,
+              "x": 120,
+              "y": -10,
+              "rotation": 0
+            },
+            {
+              "component": "Text",
+              "text": "退出",
+              "font": "Inter",
+              "fontWeight": "Regular",
+              "fontSize": 64,
+              "color": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 1
+              },
+              "horizontalAlign": "CENTER",
+              "verticalAlign": "CENTER"
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "component": "RectTransform",
+          "width": 395,
+          "height": 97,
+          "x": 258,
+          "y": -872,
+          "rotation": 0
+        },
+        {
+          "component": "Image",
+          "sourceImage": "image_5_2.png",
+          "color": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "2:11",
+      "name": "机器、雨幕 与少女",
+      "type": "TEXT",
+      "children": [],
+      "components": [
+        {
+          "component": "RectTransform",
+          "width": 775,
+          "height": 257,
+          "x": 68,
+          "y": -92,
+          "rotation": 0
+        },
+        {
+          "component": "Text",
+          "text": "机器、雨幕\n与少女",
+          "font": "Inter",
+          "fontWeight": "Regular",
+          "fontSize": 128,
+          "color": {
+            "r": 0,
+            "g": 1,
+            "b": 0.9833333492279053,
+            "a": 1
+          },
+          "horizontalAlign": "CENTER",
+          "verticalAlign": "CENTER"
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "component": "RectTransform",
+      "width": 1920,
+      "height": 1080,
+      "x": 0,
+      "y": 0,
+      "rotation": 0
+    }
+  ]
+}
