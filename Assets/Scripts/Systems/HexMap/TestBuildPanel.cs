@@ -27,11 +27,16 @@ public class TestBuildPanel : MonoBehaviour
     public int canteenMat = 10;
     public int canteenEnergy = 5;
 
+    public HexGridData hexGrid;
+
+    private EventBus _bus;
+
     void OnEnable()
     {
-        EventBus.Instance?.Subscribe<ResourceChangedEvent>(OnResChanged);
-        EventBus.Instance?.Subscribe<BuildAccepted>(OnBuildAccepted);
-        EventBus.Instance?.Subscribe<BuildRejected>(OnBuildRejected);
+        _bus = EventBus.Instance;
+        _bus?.Subscribe<ResourceChangedEvent>(OnResChanged);
+        _bus?.Subscribe<BuildAccepted>(OnBuildAccepted);
+        _bus?.Subscribe<BuildRejected>(OnBuildRejected);
 
         if (btnWarehouse) btnWarehouse.onClick.AddListener(() => RequestBuild("Warehouse", warehouseFood, warehouseMat, warehouseEnergy));
         if (btnBattery) btnBattery.onClick.AddListener(() => RequestBuild("Battery", batteryFood, batteryMat, batteryEnergy));
@@ -40,33 +45,42 @@ public class TestBuildPanel : MonoBehaviour
 
     void OnDisable()
     {
-        if (EventBus.Instance == null) return;
-        EventBus.Instance.Unsubscribe<ResourceChangedEvent>(OnResChanged);
-        EventBus.Instance.Unsubscribe<BuildAccepted>(OnBuildAccepted);
-        EventBus.Instance.Unsubscribe<BuildRejected>(OnBuildRejected);
+        _bus?.Unsubscribe<ResourceChangedEvent>(OnResChanged);
+        _bus?.Unsubscribe<BuildAccepted>(OnBuildAccepted);
+        _bus?.Unsubscribe<BuildRejected>(OnBuildRejected);
+        _bus = null;
 
         if (btnWarehouse) btnWarehouse.onClick.RemoveAllListeners();
         if (btnBattery) btnBattery.onClick.RemoveAllListeners();
         if (btnCanteen) btnCanteen.onClick.RemoveAllListeners();
     }
 
+
     private void OnResChanged(ResourceChangedEvent e)
     {
         if (resText)
             resText.text = $"Food {e.Food}/{e.CapFood} | Mat {e.Mat}/{e.CapMat} | Energy {e.Energy}/{e.CapEnergy}";
     }
+    //×ÊÔ´ÏÔÊ¾
 
     private void RequestBuild(string proto, int f, int m, int en)
     {
+        var tile = hexGrid.GetSelectedTile();
+        if (tile == null || tile.hasBuilding)
+        {
+            Log("No valid tile selected");
+            return;
+        }
+
         var tx = Guid.NewGuid();
-        Log($"> BuildRequest {proto}  Cost Food{f}/Material{m}/Energy{en}  ");
-        //tx ={ tx}
+
         EventBus.Instance?.Publish(new BuildRequest
         {
             PrototypeId = proto,
-            FoodCost = Mathf.Max(0, f),
-            MatCost = Mathf.Max(0, m),
-            EnergyCost = Mathf.Max(0, en),
+            CellPosition = tile.cellPosition,
+            FoodCost = f,
+            MatCost = m,
+            EnergyCost = en,
             TxId = tx
         });
     }
