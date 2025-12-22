@@ -16,17 +16,25 @@ namespace ProjectSulamith.Systems
         [SerializeField] private int matCap = 1000;
         [SerializeField] private int energyCap = 1000;
 
-        [Header("Produce per minute（可小数）")]
-        [SerializeField] private float foodProducePerMin = 5f;
-        [SerializeField] private float matProducePerMin = 5f;
-        [SerializeField] private float energyProducePerMin = 5f;
+        [Header("Base per minute (optional)")]
+        [SerializeField] private float baseFoodPerMin = 0f;
+        [SerializeField] private float baseMatPerMin = 0f;
+        [SerializeField] private float baseEnergyPerMin = 0f;
+
+        [Header("Building yields")]
+        [SerializeField] private BuildingYieldConfig buildingYieldConfig;
+
+        // prototypeId -> count
+        private readonly System.Collections.Generic.Dictionary<string, int> _buildingCounts
+            = new System.Collections.Generic.Dictionary<string, int>(System.StringComparer.Ordinal);
+
 
         [Header("Consume per minute（可小数）")]
         [SerializeField] private float foodConsumePerMin = 2f;
         [SerializeField] private float matConsumePerMin = 1f;
         [SerializeField] private float energyConsumePerMin = 3f;
 
-        // —— 权威整数库存 ——
+        // —— 整数库存 ——
         private int _foodInt;
         private int _matInt;
         private int _energyInt;
@@ -41,6 +49,43 @@ namespace ProjectSulamith.Systems
         private int _lastMat = int.MinValue;
         private int _lastEnergy = int.MinValue;
 
+        public void Tick(float dm)
+        {
+            var rate = ComputeNetRatePerMin(); // (food, mat, energy) 每分钟净变化
+
+            _foodFrac += rate.x * dm;
+            _matFrac += rate.y * dm;
+            _energyFrac += rate.z * dm;
+
+            AccumulateWhole(ref _foodFrac, ref _foodInt, foodCap);
+            AccumulateWhole(ref _matFrac, ref _matInt, matCap);
+            AccumulateWhole(ref _energyFrac, ref _energyInt, energyCap);
+
+            BroadcastIfChanged();
+        }
+
+        private Vector3 ComputeNetRatePerMin()
+        {
+            float food = baseFoodPerMin;
+            float mat = baseMatPerMin;
+            float energy = baseEnergyPerMin;
+
+            if (buildingYieldConfig != null)
+            {
+                foreach (var kv in _buildingCounts)
+                {
+                    if (kv.Value <= 0) continue;
+                    if (!buildingYieldConfig.TryGet(kv.Key, out var entry)) continue;
+
+                    food += entry.foodPerMin * kv.Value;
+                    mat += entry.matPerMin * kv.Value;
+                    energy += entry.energyPerMin * kv.Value;
+                }
+            }
+
+            return new Vector3(food, mat, energy);
+        }
+
         #region ISimSystem
         public void Initialize()
         {
@@ -53,43 +98,41 @@ namespace ProjectSulamith.Systems
         }
 
         /// <param name="dm">Δ逻辑分钟，由时间系统传入</param>
-        public void Tick(float dm)
-        {
-            // 1) 累加小数变化
-            _foodFrac += (foodProducePerMin - foodConsumePerMin) * dm;
-            _matFrac += (matProducePerMin - matConsumePerMin) * dm;
-            _energyFrac += (energyProducePerMin - energyConsumePerMin) * dm;
-
-            // 2) 将整份结转到整数库存，并钳制 0..cap
-            AccumulateWhole(ref _foodFrac, ref _foodInt, foodCap);
-            AccumulateWhole(ref _matFrac, ref _matInt, matCap);
-            AccumulateWhole(ref _energyFrac, ref _energyInt, energyCap);
-
-            // 3) 仅在整数库存变动时广播
-            BroadcastIfChanged();
-        }
+        
 
         public void Shutdown() { }
         #endregion
 
-        #region Event wiring
+        #region Event 
         private void OnEnable()
         {
             EventBus.Instance?.Subscribe<SpendResourcesRequest>(OnSpendResourcesRequest);
-
+            EventBus.Instance?.Subscribe<BuildingPlacedEvent>(OnBuildingPlaced);
         }
 
         private void OnDisable()
         {
             if (EventBus.Instance == null) return;
             EventBus.Instance.Unsubscribe<SpendResourcesRequest>(OnSpendResourcesRequest);
-
+            EventBus.Instance.Unsubscribe<BuildingPlacedEvent>(OnBuildingPlaced);
         }
+
+        private void OnBuildingPlaced(BuildingPlacedEvent e)
+        {
+            if (string.IsNullOrEmpty(e.PrototypeId)) return;
+
+            _buildingCounts.TryGetValue(e.PrototypeId, out int c);
+            _buildingCounts[e.PrototypeId] = c + 1;
+
+            // 可选：立即广播一次（让 UI 立刻看到“产出变化”——如果你 UI 有显示速率的话）
+            // BroadcastIfChanged(force: true);
+        }
+
         #endregion
 
         #region Spend APIs
         /// <summary>
-        /// 新版：按三资源一次性判定与扣费（只使用整数库存；小数零头不可用）
+        /// 按三资源一次性判定与扣费（只使用整数库存；小数零头不可用）
         /// </summary>
         private void OnSpendResourcesRequest(SpendResourcesRequest req)
         {
@@ -181,11 +224,6 @@ namespace ProjectSulamith.Systems
         #endregion
     }
 
-    // ====== 事件约定（若你已在 Core/Events.cs 定义，请删除这里或注释掉重复定义） ======
-    // public struct SpendResourcesRequest { public int Food, Mat, Energy; public string TxId; }
-    // public struct SpendResourcesResult { public bool Ok; public int RemainFood, RemainMat, RemainEnergy; public string TxId; }
-    // public struct SpendEnergyRequest { public int Amount; public string TxId; }
-    // public struct SpendEnergyResult { public bool Ok; public int Remaining; public string TxId; }
-    // public struct ResourceChangedEvent { public int Food, Mat, Energy, CapFood, CapMat, CapEnergy; }
+    
 }
 #endregion

@@ -1,38 +1,138 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
+using ProjectSulamith.Core; // 里边有 TimeMode，如果没有这行就先注释掉
 
-public class MainMenuManager : MonoBehaviour
+namespace ProjectSulamith.UI
 {
-    // 开始游戏按钮的功能
-    public void OnStartGameClicked()
+    /// <summary>
+    /// 全局 UI 管理器。
+    /// - 负责不同 UI 图层的显隐与交互开关
+    /// - 防止过渡遮罩/错误 CanvasGroup 把按钮输入吃掉
+    /// - 为 TimeManager / MainMenu 提供统一入口
+    /// 
+    /// 用法：
+    /// 1. 在场景中放一个 UIManager，挂到 UI_Root 上。
+    /// 2. 在 Inspector 里把对应 CanvasGroup 拖进来。
+    /// 3. 其他脚本通过 UIManager.Instance 调用 SetMode / ShowMainMenu。
+    /// </summary>
+    public class UIManager : MonoBehaviour
     {
-        Debug.Log("开始游戏被点击了！");
-        // 加载游戏场景
-        SceneManager.LoadScene("GameScene");
-    }
+        public static UIManager Instance { get; private set; }
 
-    // 继续游戏按钮的功能
-    public void OnContinueGameClicked()
-    {
-        Debug.Log("继续游戏被点击了！");
-        // 加载存档逻辑
-    }
+        [Header("主菜单层（仅主菜单场景用）")]
+        public CanvasGroup mainMenuLayer;
 
-    // 设置按钮的功能
-    public void OnSettingsClicked()
-    {
-        Debug.Log("设置被点击了！");
-        // 打开设置面板
-    }
+        [Header("游戏内层")]
+        public CanvasGroup simulationLayer;      // 营地/经营 UI
+        public CanvasGroup communicationLayer;   // 通信/对话 UI
+        public CanvasGroup overlayLayer;         // 遮罩、渐变、全屏提示
 
-    // 退出游戏按钮的功能
-    public void OnQuitGameClicked()
-    {
-        Debug.Log("退出游戏被点击了！");
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
-#endif
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+            // 如果需要跨场景保留 UI，可以解开：
+            // DontDestroyOnLoad(gameObject);
+
+            EnsureEventSystem();
+        }
+
+        #region Public API
+
+        /// <summary>
+        /// 主菜单场景调用：确保主菜单按钮可交互。
+        /// </summary>
+        public void ShowMainMenu()
+        {
+            SetLayer(mainMenuLayer, true);
+            SetLayer(simulationLayer, false);
+            SetLayer(communicationLayer, false);
+            // overlay 只做特效，不应该挡住菜单点击
+            if (overlayLayer != null)
+            {
+                overlayLayer.blocksRaycasts = false;
+            }
+        }
+
+        /// <summary>
+        /// 游戏场景调用：根据时间模式切 UI。
+        /// TimeManager 切模式时记得调用。
+        /// </summary>
+        public void SetMode(TimeMode mode)
+        {
+            switch (mode)
+            {
+                case TimeMode.Simulation:
+                    SetLayer(simulationLayer, true);
+                    SetLayer(communicationLayer, false);
+                    UnlockOverlay();
+                    break;
+
+                case TimeMode.Realtime:
+                    SetLayer(simulationLayer, false);
+                    SetLayer(communicationLayer, true);
+                    UnlockOverlay();
+                    break;
+
+                case TimeMode.Paused:
+                    // 游戏暂停但可以点菜单/弹窗，根据项目自己拓展
+                    SetLayer(simulationLayer, false);
+                    SetLayer(communicationLayer, false);
+                    UnlockOverlay();
+                    break;
+
+                case TimeMode.Transition:
+                    // 过渡时禁用底层交互，避免误点
+                    SetLayer(simulationLayer, false, false);
+                    SetLayer(communicationLayer, false, false);
+                    LockOverlay(); // 只让过渡层吃输入
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private void SetLayer(CanvasGroup cg, bool active, bool interactable = true)
+        {
+            if (cg == null) return;
+
+            cg.alpha = active ? 1f : 0f;
+            cg.interactable = active && interactable;
+            cg.blocksRaycasts = active && interactable;
+        }
+
+        private void LockOverlay()
+        {
+            if (overlayLayer == null) return;
+            overlayLayer.alpha = 1f;
+            overlayLayer.interactable = true;
+            overlayLayer.blocksRaycasts = true;
+        }
+
+        private void UnlockOverlay()
+        {
+            if (overlayLayer == null) return;
+            // 可见但不挡点击，按需要调
+            overlayLayer.interactable = false;
+            overlayLayer.blocksRaycasts = false;
+        }
+
+        private void EnsureEventSystem()
+        {
+            if (EventSystem.current == null)
+            {
+                var go = new GameObject("EventSystem");
+                go.AddComponent<EventSystem>();
+                go.AddComponent<StandaloneInputModule>();
+            }
+        }
+
+        #endregion
     }
 }

@@ -1,6 +1,9 @@
 // Assets/Scripts/Systems/EventsSystem.cs
 using System;
+using UnityEngine;
 
+using UnityEngine.Tilemaps;
+//所有事件放置的地方
 namespace ProjectSulamith.Systems
 {
     // ===== 资源变更广播：只广播整数库存，不暴露小数零头 =====
@@ -40,18 +43,37 @@ namespace ProjectSulamith.Systems
     // ===== 示例：建造请求/结果（上层系统可以直接改为三资源成本） =====
     public struct BuildRequest
     {
-        public string PrototypeId;
+        public string PrototypeId;//名称
+        public Vector3Int CellPosition;//位置
 
-        // 将原来的 EnergyCost 拆分为三资源成本
+        
         public int FoodCost;
         public int MatCost;
         public int EnergyCost;
-
+        //三种资源成本
         public Guid TxId;
     }
 
-    public struct BuildAccepted { public string PrototypeId; public Guid TxId; }
-    public struct BuildRejected { public string PrototypeId; public string Reason; public Guid TxId; }
+    public struct BuildAccepted
+    {
+        public string PrototypeId;
+        public Vector3Int CellPosition;
+        public Guid TxId;
+    }
+
+    public struct BuildRejected
+    {
+        public string PrototypeId;
+        public Vector3Int CellPosition;
+        public string Reason;
+        public Guid TxId;
+    }
+
+    public struct BuildingPlacedEvent
+    {
+        public Vector3Int CellPosition;
+        public string PrototypeId;
+    }
 
     // ===== 建造流程中用到的事件（保持不变，可继续使用） =====
     public struct BuildRequestedEvent { public BuildingDef def; }

@@ -22,10 +22,15 @@ namespace ProjectSulamith.Core
     {
         // 懒加载单例
         private static EventBus _instance;
+
+        private static bool _isQuittingOrDestroying;
+
+
         public static EventBus Instance
         {
             get
             {
+                if (_isQuittingOrDestroying) return null;
                 if (_instance == null)
                 {
                     // 尝试查找已有实例
@@ -58,6 +63,21 @@ namespace ProjectSulamith.Core
             DontDestroyOnLoad(gameObject);
         }
 
+        private void OnApplicationQuit()
+        {
+            // Play 停止/应用退出时会走这里
+            _isQuittingOrDestroying = true;
+        }
+
+        private void OnDestroy()
+        {
+            // 场景关闭/域重载时也会走这里
+            // 防止 OnDisable/OnDestroy 里有人访问 Instance 触发新建
+            _isQuittingOrDestroying = true;
+
+            // 如果销毁的正是当前实例，把引用清掉
+            if (_instance == this) _instance = null;
+        }
         #region === 发布与订阅核心逻辑 ===
 
         /// <summary>
