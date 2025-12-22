@@ -1,6 +1,7 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class SettingsManager : MonoBehaviour
     public Slider masterVolumeSlider;        // 总音量滑块
     public Slider musicVolumeSlider;         // 音乐音量滑块  
     public Slider soundEffectsSlider;        // 音效音量滑块
+
+    //目前没有加上
     public TextMeshProUGUI masterVolumeText; // 总音量百分比文字
     public TextMeshProUGUI musicVolumeText;  // 音乐音量百分比文字
     public TextMeshProUGUI soundEffectsText; // 音效音量百分比文字
@@ -30,10 +33,12 @@ public class SettingsManager : MonoBehaviour
     // 存储设置数据
     private SettingsData currentSettings;
 
+
+
     [System.Serializable]
     public class SettingsData
     {
-        public int screenMode;           // 0=窗口化, 1=全屏
+        public int screenMode;           // 1=窗口化, 0=全屏
         public int resolutionIndex;      // 分辨率索引
         public float masterVolume = 1f;  // 总音量
         public float musicVolume = 1f;   // 音乐音量
@@ -51,34 +56,49 @@ public class SettingsManager : MonoBehaviour
         // 初始化分辨率选项
         InitializeResolutionOptions();
 
+        ApplyDisplaySettings();//全屏
     }
 
+
+    private Resolution[] availableResolutions;
     // 初始化分辨率选项
     private void InitializeResolutionOptions()
     {
-        if (resolutionDropdown != null)
-        {
-            resolutionDropdown.ClearOptions();
+        resolutionDropdown.ClearOptions();
 
-            // 添加常见分辨率
-            Resolution[] resolutions = Screen.resolutions;
-            foreach (Resolution res in resolutions)
-            {
-                // 只添加16:9的常见分辨率避免列表太长
-                if (res.width == 1920 && res.height == 1080 ||
-                    res.width == 1366 && res.height == 768 ||
-                    res.width == 1280 && res.height == 720 ||
-                    res.width == 2560 && res.height == 1440)
-                {
-                    TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData($"{res.width} x {res.height}");
-                    resolutionDropdown.options.Add(option);
-                }
-            }
+        List<string> options = new List<string>();
+        List<Resolution> resolutionList = new List<Resolution>();
 
-            // 设置当前分辨率
-            resolutionDropdown.value = currentSettings.resolutionIndex;
-            resolutionDropdown.RefreshShownValue();
-        }
+        AddResolution(1280, 720, options, resolutionList);
+        AddResolution(1366, 768, options, resolutionList);
+        AddResolution(1600, 900, options, resolutionList);
+        AddResolution(1920, 1080, options, resolutionList);
+        AddResolution(2560, 1440, options, resolutionList);
+
+        availableResolutions = resolutionList.ToArray();
+
+        resolutionDropdown.AddOptions(options);
+
+        // 防止越界
+        if (currentSettings.resolutionIndex >= availableResolutions.Length)
+            currentSettings.resolutionIndex = 0;
+
+        resolutionDropdown.value = currentSettings.resolutionIndex;
+        resolutionDropdown.RefreshShownValue();
+    }
+
+    private void AddResolution(
+        int width,
+        int height,
+        List<string> options,
+        List<Resolution> resolutionList)
+    {
+        Resolution res = new Resolution();
+        res.width = width;
+        res.height = height;
+
+        options.Add($"{width} x {height}");
+        resolutionList.Add(res);
     }
 
     // 初始化UI事件
@@ -141,7 +161,7 @@ public class SettingsManager : MonoBehaviour
     private void OnScreenModeChanged(int mode)
     {
         currentSettings.screenMode = mode;
-        Debug.Log($"屏幕模式改为: {(mode == 0 ? "窗口化" : "全屏")}");
+        Debug.Log($"屏幕模式改为: {(mode == 1 ? "窗口化" : "全屏")}");
     }
 
     private void OnResolutionChanged(int index)
@@ -156,6 +176,7 @@ public class SettingsManager : MonoBehaviour
         currentSettings.masterVolume = volume;
         UpdateVolumeText(masterVolumeText, volume);
         AudioListener.volume = volume; // 实际控制总音量
+        AudioManager.Instance.SetMasterVolume(volume);
         Debug.Log($"总音量: {volume * 100}%");
     }
     //界面切换方法
@@ -186,6 +207,7 @@ public class SettingsManager : MonoBehaviour
         currentSettings.musicVolume = volume;
         UpdateVolumeText(musicVolumeText, volume);
         // 这里可以控制背景音乐音量
+        AudioManager.Instance.SetMusicVolume(volume);
         Debug.Log($"音乐音量: {volume * 100}%");
     }
 
@@ -194,6 +216,8 @@ public class SettingsManager : MonoBehaviour
         currentSettings.soundVolume = volume;
         UpdateVolumeText(soundEffectsText, volume);
         // 这里可以控制音效音量
+
+        AudioManager.Instance.SetSFXVolume(volume);
         Debug.Log($"音效音量: {volume * 100}%");
     }
 
@@ -228,17 +252,13 @@ public class SettingsManager : MonoBehaviour
     }
 
     // 应用显示设置
+
     private void ApplyDisplaySettings()
     {
-        // 设置屏幕模式
-        bool fullscreen = currentSettings.screenMode == 1;
-
-        // 设置分辨率（简化版，实际需要更复杂的逻辑）
-        if (resolutionDropdown != null && resolutionDropdown.options.Count > currentSettings.resolutionIndex)
+        bool fullscreen = currentSettings.screenMode == 0;
+        if (availableResolutions != null && currentSettings.resolutionIndex < availableResolutions.Length)
         {
-            // 这里需要根据选择的索引设置实际分辨率
-            // 简化处理：只切换全屏/窗口
-            Screen.fullScreenMode = fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+            Resolution res = availableResolutions[currentSettings.resolutionIndex]; Screen.SetResolution(res.width, res.height, fullscreen);
         }
     }
 
@@ -296,5 +316,5 @@ public class SettingsManager : MonoBehaviour
         // 更新UI
         UpdateUIFromSettings();
     }
-   
+
 }
