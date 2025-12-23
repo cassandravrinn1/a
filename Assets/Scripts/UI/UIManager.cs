@@ -1,9 +1,12 @@
+
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using ProjectSulamith.Core; // 里边有 TimeMode，如果没有这行就先注释掉
 
 namespace ProjectSulamith.UI
 {
+
     /// <summary>
     /// 全局 UI 管理器。
     /// - 负责不同 UI 图层的显隐与交互开关
@@ -22,10 +25,16 @@ namespace ProjectSulamith.UI
         [Header("主菜单层（仅主菜单场景用）")]
         public CanvasGroup mainMenuLayer;
 
+        [Header("UI Panels")]
+        public GameObject MainUIPanel;
+        public GameObject SettingsPanel;
+        public GameObject keyBindingPanel;  // 键位界面
+
         [Header("游戏内层")]
         public CanvasGroup simulationLayer;      // 营地/经营 UI
         public CanvasGroup communicationLayer;   // 通信/对话 UI
         public CanvasGroup overlayLayer;         // 遮罩、渐变、全屏提示
+
 
         private void Awake()
         {
@@ -41,6 +50,10 @@ namespace ProjectSulamith.UI
             EnsureEventSystem();
         }
 
+        private void Start()
+        {
+            ShowMainMenu();
+        }
         #region Public API
 
         /// <summary>
@@ -56,6 +69,10 @@ namespace ProjectSulamith.UI
             {
                 overlayLayer.blocksRaycasts = false;
             }
+            // 新增强制重置：确保主界面显示，设置/键位面板隐藏（修复顺序问题）
+            MainUIPanel?.SetActive(true);
+            SettingsPanel?.SetActive(false);
+            keyBindingPanel?.SetActive(false);
         }
 
         /// <summary>
@@ -95,8 +112,64 @@ namespace ProjectSulamith.UI
         }
 
         #endregion
+        #region 按钮点击逻辑
+        // 开始游戏按钮的功能
+        public void OnStartGameClicked()
+        {
+            Debug.Log("开始被点击了！");
+        }
+
+        public void OnContinueGameClicked()
+        {
+            Debug.Log("继续游戏被点击了！");
+            // 后续可补充加载存档逻辑
+        }
+
+        // 设置按钮的功能
+        public void OnSettingsClicked()
+        {
+            Debug.Log("设置被点击了！");
+            // 隐藏主UI，显示设置面板
+            if (MainUIPanel != null)
+                MainUIPanel.SetActive(false);
+            if (SettingsPanel != null)
+                SettingsPanel.SetActive(true);
+            if (keyBindingPanel != null)
+                keyBindingPanel.SetActive(false);
+        }
+
+        // 返回主界面按钮
+        public void OnBackToMainMenu()
+        {
+            Debug.Log("返回主菜单！");
+            // 调用 ShowMainMenu 统一恢复主界面状态
+            ShowMainMenu();
+        }
+
+        // 键位绑定面板的打开逻辑
+        public void OnKeyBindingClicked()
+        {
+            Debug.Log("打开键位绑定面板！");
+            if (MainUIPanel != null)
+                MainUIPanel.SetActive(false);
+            if (SettingsPanel != null)
+                SettingsPanel.SetActive(false);
+            if (keyBindingPanel != null)
+                keyBindingPanel.SetActive(true);
+        }
+        public void OnQuitGameClicked()
+        {
+            Debug.Log("退出游戏被点击了！");
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+        }
+        #endregion
 
         #region Helpers
+
 
         private void SetLayer(CanvasGroup cg, bool active, bool interactable = true)
         {

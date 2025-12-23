@@ -3,6 +3,10 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
+
+    [Header("UI面板引用")]
+    public GameObject mainMenuPanel; // 主界面面板
+    public GameObject settingsPanel; // 设置界面面板
     // 开始游戏按钮的功能
     public void OnStartGameClicked()
     {
@@ -22,7 +26,9 @@ public class MainMenuManager : MonoBehaviour
     public void OnSettingsClicked()
     {
         Debug.Log("设置被点击了！");
-        // 打开设置面板
+        // 隐藏主界面，显示设置面板
+        mainMenuPanel.SetActive(false);
+        settingsPanel.SetActive(true);
     }
 
     // 退出游戏按钮的功能
