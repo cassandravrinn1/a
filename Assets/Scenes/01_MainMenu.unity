@@ -371,7 +371,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1279222010}
-        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: ProjectSulamith.UI.UIManager, Assembly-CSharp
         m_MethodName: OnQuitGameClicked
         m_Mode: 1
         m_Arguments:
@@ -1204,7 +1204,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1279222010}
-        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: ProjectSulamith.UI.UIManager, Assembly-CSharp
         m_MethodName: OnStartGameClicked
         m_Mode: 1
         m_Arguments:
@@ -3173,7 +3173,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1279222010}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
         m_MethodName: OnBackToMainMenu
         m_Mode: 1
@@ -3307,7 +3307,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1279222010}
-        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: ProjectSulamith.UI.UIManager, Assembly-CSharp
         m_MethodName: OnContinueGameClicked
         m_Mode: 1
         m_Arguments:
@@ -3703,7 +3703,7 @@ GameObject:
   - component: {fileID: 1279222009}
   - component: {fileID: 1279222010}
   m_Layer: 5
-  m_Name: MainMenuUImanager
+  m_Name: UImanager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3737,12 +3737,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1279222008}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a16fa1442ae58cd46b71d22628cc2101, type: 3}
+  m_Script: {fileID: 11500000, guid: 2bb22a3160e4dfb4bb17bdaa44371393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainMenuLayer: {fileID: 0}
   MainUIPanel: {fileID: 1399812443}
   SettingsPanel: {fileID: 1828243409}
   keyBindingPanel: {fileID: 1862411977}
+  simulationLayer: {fileID: 0}
+  communicationLayer: {fileID: 0}
+  overlayLayer: {fileID: 0}
 --- !u!1 &1317837941
 GameObject:
   m_ObjectHideFlags: 0
@@ -3807,7 +3811,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1279222010}
-        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: ProjectSulamith.UI.UIManager, Assembly-CSharp
         m_MethodName: OnSettingsClicked
         m_Mode: 1
         m_Arguments:
@@ -3960,7 +3964,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1279222010}
-        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: ProjectSulamith.UI.UIManager, Assembly-CSharp
         m_MethodName: OnBackToMainMenu
         m_Mode: 1
         m_Arguments:
@@ -5148,7 +5152,6 @@ GameObject:
   - component: {fileID: 1654567429}
   - component: {fileID: 1654567428}
   - component: {fileID: 1654567427}
-  - component: {fileID: 1654567431}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -5168,7 +5171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 0
+  m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
@@ -5245,7 +5248,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
-<<<<<<< HEAD
 --- !u!1001 &1668647009
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5719,59 +5721,11 @@ RectTransform:
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1856615599
-=======
---- !u!225 &1654567431
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1654567426}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!1 &2048688466
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2048688467}
-  - component: {fileID: 2048688468}
-  m_Layer: 0
-  m_Name: UImanager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2048688467
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2048688466}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 632.4641, y: 574.7087, z: -0.80619466}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2048688468
->>>>>>> b71a83ae180cd544758b4c8e43129d91dab8dd6f
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
   m_GameObject: {fileID: 1856615597}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -6540,18 +6494,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 17218bdd749924c4e80a4df9d6137727, type: 3}
-=======
-  m_GameObject: {fileID: 2048688466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bb22a3160e4dfb4bb17bdaa44371393, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainMenuLayer: {fileID: 1654567431}
-  simulationLayer: {fileID: 0}
-  communicationLayer: {fileID: 0}
-  overlayLayer: {fileID: 0}
->>>>>>> b71a83ae180cd544758b4c8e43129d91dab8dd6f
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -6559,4 +6501,3 @@ SceneRoots:
   - {fileID: 611875373}
   - {fileID: 1189494164}
   - {fileID: 1654567430}
-  - {fileID: 2048688467}

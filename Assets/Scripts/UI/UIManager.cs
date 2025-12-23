@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using ProjectSulamith.Core; // 里边有 TimeMode，如果没有这行就先注释掉
 
 namespace ProjectSulamith.UI
@@ -68,6 +69,10 @@ namespace ProjectSulamith.UI
             {
                 overlayLayer.blocksRaycasts = false;
             }
+            // 新增强制重置：确保主界面显示，设置/键位面板隐藏（修复顺序问题）
+            MainUIPanel?.SetActive(true);
+            SettingsPanel?.SetActive(false);
+            keyBindingPanel?.SetActive(false);
         }
 
         /// <summary>
@@ -114,6 +119,11 @@ namespace ProjectSulamith.UI
             Debug.Log("开始被点击了！");
         }
 
+        public void OnContinueGameClicked()
+        {
+            Debug.Log("继续游戏被点击了！");
+            // 后续可补充加载存档逻辑
+        }
 
         // 设置按钮的功能
         public void OnSettingsClicked()
@@ -125,7 +135,7 @@ namespace ProjectSulamith.UI
             if (SettingsPanel != null)
                 SettingsPanel.SetActive(true);
             if (keyBindingPanel != null)
-                SettingsPanel.SetActive(false);
+                keyBindingPanel.SetActive(false);
         }
 
         // 返回主界面按钮
@@ -136,7 +146,7 @@ namespace ProjectSulamith.UI
             ShowMainMenu();
         }
 
-        // 可选：键位绑定面板的打开逻辑（如果需要）
+        // 键位绑定面板的打开逻辑
         public void OnKeyBindingClicked()
         {
             Debug.Log("打开键位绑定面板！");
@@ -145,7 +155,16 @@ namespace ProjectSulamith.UI
             if (SettingsPanel != null)
                 SettingsPanel.SetActive(false);
             if (keyBindingPanel != null)
-                SettingsPanel.SetActive(true);
+                keyBindingPanel.SetActive(true);
+        }
+        public void OnQuitGameClicked()
+        {
+            Debug.Log("退出游戏被点击了！");
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
         #endregion
 
