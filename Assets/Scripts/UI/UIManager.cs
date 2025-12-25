@@ -1,9 +1,9 @@
-<<<<<<< Updated upstream
+
 
 using UnityEngine;
-=======
-/*using UnityEngine;
->>>>>>> Stashed changes
+
+using UnityEngine;
+
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using ProjectSulamith.Core; // 里边有 TimeMode，如果没有这行就先注释掉
@@ -121,6 +121,8 @@ namespace ProjectSulamith.UI
         public void OnStartGameClicked()
         {
             Debug.Log("开始被点击了！");
+            SceneManager.LoadScene("Game");
+
         }
 
         public void OnContinueGameClicked()
@@ -213,4 +215,3 @@ namespace ProjectSulamith.UI
         #endregion
     }
 }
-*/
