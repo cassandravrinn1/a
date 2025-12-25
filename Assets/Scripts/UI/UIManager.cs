@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 
 using UnityEngine;
+=======
+/*using UnityEngine;
+>>>>>>> Stashed changes
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using ProjectSulamith.Core; // 里边有 TimeMode，如果没有这行就先注释掉
@@ -209,3 +213,4 @@ namespace ProjectSulamith.UI
         #endregion
     }
 }
+*/
