@@ -340,17 +340,43 @@ public class PersonalitySystem : MonoBehaviour
         // 交给映射函数：
         // - 若有 NN：输入 = emo + guilt + 身体 + 上下文 + Tag one-hot + shortBias + longBias
         // - 若无 NN：使用启发式 + (shortBias + longBias)
-        Vector4 delta = EvaluateNetworkLikeMapping(e, emo, guilt, shortBias, longBias);
+        // 事件本身的响应（不含任何记忆偏置）
+        Vector4 baseDelta = EvaluateHeuristic(e, emo, guilt); // 若你后续要接 NN，也应在这里得到“事件响应”而非“含偏置输出”
 
-        // 写入记忆（使用本次即时 delta，供后续摘要使用）
+        // ★ 记忆偏置（由历史生成）
+        static float CombineNoFlip(float baseD, float bias)
+        {
+            // bias>0：倾向正向；bias<0：倾向负向
+            // 同号增强，异号减弱，但不改变 baseD 的符号
+            float k = 1f + Mathf.Clamp(Mathf.Abs(bias), 0f, 0.6f); // 1~1.6
+            if (Mathf.Sign(baseD) == Mathf.Sign(bias) && baseD != 0f) return baseD * k;
+            if (baseD != 0f) return baseD / k;
+            return bias * 0.05f; // baseD=0 时给很弱的漂移（可改为 0）
+        }
+
+        Vector4 biasSum = shortBias + longBias;
+        Vector4 finalDelta = new Vector4(
+            CombineNoFlip(baseDelta.x, biasSum.x),
+            CombineNoFlip(baseDelta.y, biasSum.y),
+            CombineNoFlip(baseDelta.z, biasSum.z),
+            CombineNoFlip(baseDelta.w, biasSum.w)
+        );
+
+
+        // ★ 记忆只记录“事件本身的响应”，不要记录“含偏置的最终输出”
+        // 否则会形成自我强化回路：bias -> delta变大 -> 写回记忆 -> bias更大
         var mem = new MemoryEntry
         {
             Tag = e.Tag,
-            Delta = delta,
+            Delta = baseDelta,
             Time = now
         };
         AddEpisodicMemory(mem);
         AddLongTermMemory(mem);
+
+        // 最终用于更新情绪的 delta
+        Vector4 delta = finalDelta;
+
 
         // 随机扰动
         if (noiseAmplitude > 0f)
@@ -364,8 +390,25 @@ public class PersonalitySystem : MonoBehaviour
         }
 
         // 惯性平滑
+        // 惯性平滑（带软边界：贴近 0/1 时，同向变化会自然变小，而不是直接“顶死”）
         float alpha = Mathf.Clamp01(1f - emotionInertia);
-        Vector4 target = emo + delta;
+
+        static float ApplySoftCap(float x, float dx)
+        {
+            // x in [0,1]
+            // 正向：越接近 1 越难再涨；负向：越接近 0 越难再降
+            if (dx > 0f) dx *= (1f - x);
+            else dx *= x;
+
+            return x + dx;
+        }
+
+        Vector4 target = emo;
+        target.x = ApplySoftCap(emo.x, delta.x);
+        target.y = ApplySoftCap(emo.y, delta.y);
+        target.z = ApplySoftCap(emo.z, delta.z);
+        target.w = ApplySoftCap(emo.w, delta.w);
+
         Vector4 blended = Vector4.Lerp(emo, target, alpha);
 
         // 写回
@@ -373,6 +416,7 @@ public class PersonalitySystem : MonoBehaviour
         _current.Happiness = Mathf.Clamp01(blended.y);
         _current.Trust = Mathf.Clamp01(blended.z);
         _current.Affinity = Mathf.Clamp01(blended.w);
+
     }
 
     /// <summary>
@@ -392,9 +436,11 @@ public class PersonalitySystem : MonoBehaviour
             return _nn.Evaluate(input);
         }
 
-        // 启发式回退：使用原有公式，并在此处加上 shortBias / longBias
+        // 启发式回退：只返回“事件本身响应”（不含记忆偏置）
+        // 记忆偏置在 ApplyEmotionDeltaFromEvent 中统一合成
         Vector4 baseDelta = EvaluateHeuristic(e, emo, guiltInput);
-        return baseDelta + shortBias + longBias;
+        return baseDelta;
+
     }
 
     /// <summary>

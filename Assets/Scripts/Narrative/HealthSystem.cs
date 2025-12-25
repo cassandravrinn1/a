@@ -200,7 +200,7 @@ public class HealthSystem : MonoBehaviour
         // TimeManager 已经把真实时间 * 模式倍率 转成了 DeltaMinutes
         // Realtime 模式：1:1；Simulation 模式：加速；Paused：不发 Tick。
         TickByGameMinutes(e.DeltaMinutes);
-        Debug.Log($"[HealthSystem] Received GameTickEvent Δm={e.DeltaMinutes}");
+        //Debug.Log($"[HealthSystem] Received GameTickEvent Δm={e.DeltaMinutes}");
 
     }
 

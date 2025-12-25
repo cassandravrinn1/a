@@ -1,94 +1,72 @@
-VAR trust = 50
-VAR mood = "neutral"
+// CmdTest.ink
+// 用 tag 命令测试 InkManager 的命令解析：#cmd: ...
 ->start
-
 === start ===
+进入系统测试对话。
 
-SULAMIS: （系统测试启动……）
-SULAMIS: 如果你看到这句话，说明对白显示正常。
+我将执行一组“开局命令”，然后给你菜单继续触发。
+#cmd: hs_activity Idle
+#cmd: hs_sleep false
 
-现在，将测试第一组选项：
-
-+ 我能听到
-    ~ trust += 5
-    ~ mood = "relieved"
-    SULAMIS: 太好了，我还担心你连不上系统。
-    -> continue_1
-
-+ 你说话好像有点卡
-    ~ trust -= 5
-    ~ mood = "worried"
-    SULAMIS: 嗯？我卡？那应该是终端延迟，不是我。
-    -> continue_1
-
-+ 快点开始测试吧
-    ~ trust -= 10
-    ~ mood = "annoyed"
-    SULAMIS: （皱眉）……看来你不太耐心。
-    -> continue_1
+-> menu
 
 
-=== continue_1 ===
+=== menu ===
+你要验证哪条命令？
 
-SULAMIS: 接下来测试 **点击选项不会重复输出**。
++ [人格：安慰她（Player_Comfort, 0.8）]
+    你轻声说了几句安慰的话。
+    #cmd: ps_event Player_Comfort 0.8
+    -> after
 
-+ 这句话如果你没有重复说，说明过滤成功
-    SULAMIS: 检查中……如果你没看到我重复上一句，那说明修复成功。
-    -> conditions_test
++ [人格：严厉（Player_Harsh, 0.8）]
+    你的语气变得尖锐。
+    #cmd: ps_event Player_Harsh 0.8
+    -> after
 
++ [健康：造成伤害（Damage, 0.2）]
+    你记录到一次身体损伤。
+    #cmd: hs_event Damage 0.2
+    -> after
 
-=== conditions_test ===
++ [健康：增加疲劳（AddFatigue, 0.35）]
+    她明显更疲惫了。
+    #cmd: hs_event AddFatigue 0.35
+    -> after
 
-SULAMIS: 好，我们来测试变量条件。
++ [健康：设置为高强度工作（HardWork）]
+    接下来让她进入高强度工作状态（影响后续 Tick 消耗）。
+    #cmd: hs_activity HardWork
+    -> after
 
-{ trust > 60:
-    SULAMIS: 你对我挺好的，我能感觉到。
-- else:
-    SULAMIS: 嗯……我们的信任还需要一点时间。
-}
++ [健康：进入睡眠（true）]
+    让她睡一会儿（sleep=true，会让 activity 变成 Resting）。
+    #cmd: hs_sleep true
+    -> after
 
-SULAMIS: 当前状态：trust = {trust}, mood = {mood}。
++ [健康：醒来（false）]
+    让她醒来（sleep=false）。
+    #cmd: hs_sleep false
+    -> after
 
-SULAMIS: 测试嵌套分支。
++ [组合测试：过劳 + 疲劳 + 安慰]
+    组合命令将被依次执行。
+    #cmd: hs_activity HardWork
+    #cmd: hs_event AddFatigue 0.45
+    #cmd: ps_event Player_Comfort 0.7
+    -> after
 
-+ 你现在心情如何？
-    { 
-    -mood == "relieved":
-        SULAMIS: 我现在挺放松的。
-    - mood == "worried":
-        SULAMIS: 有点担心……怕系统掉线。
-    - mood == "annoyed":
-        SULAMIS: 你刚才的态度让我有点不开心。
-    - else:
-        SULAMIS: 说不上来。
-    }
-    -> loop_test
-
-+ 我们继续吧
-    SULAMIS: 嗯，我准备好了。
-    -> loop_test
-
-+ 给我你的状态报告
-    SULAMIS: 状态正常，通讯稳定、心情取决于你的行为。
-    -> loop_test
-
-
-=== loop_test ===
-
-SULAMIS: 测试循环逻辑与选项清理：
-
-+ 再循环一次
-    SULAMIS: 好的，我们继续循环。
-    -> loop_test
-
-+ 结束循环
-    SULAMIS: 循环测试结束。
-    -> end_test
++ [结束]
+    测试结束。
+    -> END
 
 
-=== end_test ===
+=== after ===
+（如果你的 InkManager 开启了 logCommands，你应当能在 Console 看到 [InkCmd] ...）
 
-SULAMIS: 所有功能测试完毕。
-SULAMIS: 如果一路上没有重复文本、UI 未出错，那说明系统稳定。
+你可以继续再触发其他命令。
+-> menu
 
--> END
+
+=== END ===
+-> DONE
