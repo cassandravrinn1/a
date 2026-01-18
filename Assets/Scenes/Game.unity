@@ -1204,6 +1204,9 @@ MonoBehaviour:
   GameTimeMinutes: 0
   CurrentSpeed: 0
   TargetSpeed: 0
+  startDay: 2
+  startDayTimeHour: 8
+  startDayTimeMinute: 30
 --- !u!1 &186252057
 GameObject:
   m_ObjectHideFlags: 0
@@ -7555,7 +7558,7 @@ GameObject:
   - component: {fileID: 1059026665}
   - component: {fileID: 1059026664}
   m_Layer: 5
-  m_Name: ModeChangeButton
+  m_Name: ModeChangeButton1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8512,7 +8515,7 @@ GameObject:
   - component: {fileID: 1148274873}
   - component: {fileID: 1148274872}
   m_Layer: 5
-  m_Name: ModeChangeButton
+  m_Name: ModeChangeButton2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

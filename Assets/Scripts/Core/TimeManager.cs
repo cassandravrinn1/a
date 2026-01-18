@@ -56,11 +56,30 @@ namespace ProjectSulamith.Core
         public float CurrentSpeed;   // 当前实际速率
         public float TargetSpeed;    // 目标速率（插值目标）
 
-        // 内部状态控制
+   
         private bool _isTransitioning = false;
         private float _transitionVelocity = 0f; // SmoothDamp 用的速度缓存
         private float _transitionTimer = 0f;
         private float _lastBroadcastSpeed = -1f; // 节流控制
+
+        // Day / 24h 派生时间（由 GameTimeMinutes 推导） ===
+        [Header("Calendar (Derived from GameTimeMinutes)")]
+        [SerializeField] private int startDay = 0;               // 允许从第几天开始（存档恢复用）
+        [SerializeField] private float startDayTimeHour = 0f; 
+        [SerializeField] private float startDayTimeMinute = 0f;// 允许从当天的具体时间开始
+        public const int MinutesPerHour = 60;
+        public const int HoursPerDay = 24;
+        public const int MinutesPerDay = MinutesPerHour * HoursPerDay; // 1440
+
+        // 当前派生结果（只读对外）
+        public int CurrentDay { get; private set; }      // Day Index，从 startDay 开始累加
+        public int CurrentHour { get; private set; }     // 0-23
+        public int CurrentMinute { get; private set; }   // 0-59
+
+        // 节流/跨天检测缓存（内部用）
+        private int _lastComputedDay = int.MinValue;
+        private int _lastComputedHour = int.MinValue;
+
 
         #region === Unity Lifecycle ===
 
@@ -73,6 +92,13 @@ namespace ProjectSulamith.Core
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            int h = Mathf.Clamp(Mathf.FloorToInt(startDayTimeHour), 0, HoursPerDay - 1);
+            int m = Mathf.Clamp(Mathf.FloorToInt(startDayTimeMinute), 0, MinutesPerHour - 1);
+
+            GameTimeMinutes = startDay * MinutesPerDay + h * MinutesPerHour + m;
+
+            //由开始时间进行初始化
+            RecomputeCalendarAndBroadcastIfNeeded(force: true);
 
             // 依据当前模式设置初始速率（避免被序列化残留影响）
             switch (CurrentMode)
@@ -168,6 +194,7 @@ namespace ProjectSulamith.Core
                     DeltaMinutes = deltaGame,
                     TotalMinutes = GameTimeMinutes
                 });
+                RecomputeCalendarAndBroadcastIfNeeded(force: false);
             }
         }
 
@@ -273,6 +300,12 @@ namespace ProjectSulamith.Core
         public float GetCurrentSpeed() => CurrentSpeed;
         public float GetGameMinutes() => GameTimeMinutes;
 
+        public int GetCurrentDay() => CurrentDay;
+        public int GetCurrentHour() => CurrentHour;
+        public int GetCurrentMinute() => CurrentMinute;
+
+       
+
         #endregion
 
         #region === 事件响应 ===
@@ -307,5 +340,47 @@ namespace ProjectSulamith.Core
         }
 
         #endregion
+
+        #region === 整点事件 ===
+        private void RecomputeCalendarAndBroadcastIfNeeded(bool force)
+        {
+            // 1) 基于总分钟计算 day + 当天分钟
+            // 允许 GameTimeMinutes 是 float，取 floor 保证时间稳定递增
+            int totalMinutesInt = Mathf.FloorToInt(GameTimeMinutes);
+            if (totalMinutesInt < 0) totalMinutesInt = 0;
+
+            int dayIndex = totalMinutesInt / MinutesPerDay;
+            int dayMinute = totalMinutesInt % MinutesPerDay; // 0..1439
+
+            int hour = dayMinute / MinutesPerHour;           // 0..23
+            int minute = dayMinute % MinutesPerHour;         // 0..59
+
+            // 2) 写入派生字段（只要变了才写，避免频繁脏标）
+            CurrentDay = dayIndex;
+            CurrentHour = hour;
+            CurrentMinute = minute;
+
+            // 3) 跨天/整点检测（可选广播）
+            // 不想加新事件的话，这一段可以先留空；仅保留派生字段更新即可。
+            if (force || dayIndex != _lastComputedDay)
+            {
+                _lastComputedDay = dayIndex;
+
+                // 可选：发布 DayChangedEvent（需要你在 EventsSystem.cs 里新增 struct）
+                // EventBus.Instance?.Publish(new DayChangedEvent { Day = CurrentDay });
+            }
+
+            if (force || hour != _lastComputedHour)
+            {
+                _lastComputedHour = hour;
+
+                // 可选：发布 HourChangedEvent
+                // EventBus.Instance?.Publish(new HourChangedEvent { Day = CurrentDay, Hour = CurrentHour });
+            }
+        }
+        #endregion
+
     }
+
+
 }

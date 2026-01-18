@@ -82,4 +82,16 @@ namespace ProjectSulamith.Systems
     public struct BuildProgressEvent { public BuildingDef def; public float tNorm; } // 0-1
     public struct BuildCompletedEvent { public BuildingDef def; }
     public struct BuildFailedEvent { public BuildingDef def; public string reason; }
+
+    public struct DayChangedEvent
+    {
+        public int Day;
+    }
+
+    public struct HourChangedEvent
+    {
+        public int Day;
+        public int Hour;
+    }
+
 }

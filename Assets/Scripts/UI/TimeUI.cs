@@ -1,6 +1,6 @@
 /*
  * Project: ProjectSulamith
- * File: TimeDebugUI.cs
+ * File: TimeUI.cs
  * Author: [Cassandra]
  * Description:
  *   调试用时间信息显示组件。
@@ -17,7 +17,7 @@ namespace ProjectSulamith.UI
     /// <summary>
     /// 用于开发调试或内部测试的时间状态 UI。
     /// </summary>
-    public class TimeDebugUI : MonoBehaviour
+    public class TimeUI : MonoBehaviour
     {
         [Header("UI 绑定")]
         [Tooltip("显示时间信息的 TextMeshPro 文本组件")]
@@ -28,6 +28,12 @@ namespace ProjectSulamith.UI
         private float _currentSpeed = 0f;
         private float _customMultiplier = 1f;
         private float _gameMinutes = 0f;
+
+        private int _day = 0;
+        private int _hour = 0;
+        private int _minute = 0;
+
+
 
         #region Unity Lifecycle
 
@@ -57,14 +63,28 @@ namespace ProjectSulamith.UI
 
         private void Update()
         {
-            if (infoText == null) return;
+            var tm = TimeManager.Instance;
+            if (tm != null)
+            {
+                
+                _day = tm.CurrentDay;
+                _hour = tm.CurrentHour;
+                _minute = tm.CurrentMinute;
+                //读取时间
+            }
+            else
+            {
+                //虽然不需要但是还是写了
+                _day = -1; _hour = -1; _minute = -1;
+            }
 
             // === 实时刷新显示信息 ===
             infoText.text =
                 $"模式: {_currentMode}\n" +
                 $"当前速率: {_currentSpeed:F2}\n" +
                 $"倍速: x{_customMultiplier:F2}\n" +
-                $"游戏时间(分钟): {_gameMinutes:F1}";
+                $"游戏时间(分钟): {_gameMinutes:F1}\n" +
+                $"Day/Clock: Day {_day}  {_hour:00}:{_minute:00}";
         }
 
         #endregion
