@@ -9,29 +9,22 @@
  */
 
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace ProjectSulamith.Core
 {
-    /// <summary>
-    /// 游戏时间模式。
-    /// </summary>
+    //模式
     public enum TimeMode
     {
-        Simulation,  // 模拟经营模式（加速时间）
+        Simulation,  // 模拟经营模式
         Realtime,    // 实时剧情/通讯模式
-        Paused,      // 暂停（菜单或事件中）
+        Paused,      // 暂停
         Transition   // 模式过渡中
     }
 
-    /// <summary>
-    /// 全局时间管理器。
-    /// 控制时间流逝速率、模式切换、平滑插值与事件广播。
-    /// </summary>
+  
     public class TimeManager : MonoBehaviour
     {
-        // 单例实例
         public static TimeManager Instance { get; private set; }
 
         [Header("时间倍率设置")]
@@ -52,34 +45,39 @@ namespace ProjectSulamith.Core
 
         [Header("当前状态信息")]
         public TimeMode CurrentMode = TimeMode.Realtime;
-        public float GameTimeMinutes = 0f;
-        public float CurrentSpeed;   // 当前实际速率
-        public float TargetSpeed;    // 目标速率（插值目标）
+
+      
+        public double GameTimeMinutes = 0.0;
+
+     
+        public float CurrentSpeed = 0f;
 
    
-        private bool _isTransitioning = false;
-        private float _transitionVelocity = 0f; // SmoothDamp 用的速度缓存
-        private float _transitionTimer = 0f;
-        private float _lastBroadcastSpeed = -1f; // 节流控制
+      
+        public float TargetSpeed = 0f;
 
-        // Day / 24h 派生时间（由 GameTimeMinutes 推导） ===
+        private bool _isTransitioning = false;
+        private float _transitionVelocity = 0f; 
+        private float _transitionTimer = 0f;    
+        private float _lastBroadcastSpeed = -1f; // 节流
+
+        
         [Header("Calendar (Derived from GameTimeMinutes)")]
-        [SerializeField] private int startDay = 0;               // 允许从第几天开始（存档恢复用）
-        [SerializeField] private float startDayTimeHour = 0f; 
-        [SerializeField] private float startDayTimeMinute = 0f;// 允许从当天的具体时间开始
+        [SerializeField] private int startDay = 0;              
+        [SerializeField] private float startDayTimeHour = 0f;
+        [SerializeField] private float startDayTimeMinute = 0f;  
+
         public const int MinutesPerHour = 60;
         public const int HoursPerDay = 24;
-        public const int MinutesPerDay = MinutesPerHour * HoursPerDay; // 1440
+        public const int MinutesPerDay = MinutesPerHour * HoursPerDay; 
 
-        // 当前派生结果（只读对外）
-        public int CurrentDay { get; private set; }      // Day Index，从 startDay 开始累加
-        public int CurrentHour { get; private set; }     // 0-23
-        public int CurrentMinute { get; private set; }   // 0-59
+        public int CurrentDay { get; private set; }      
+        public int CurrentHour { get; private set; }    
+        public int CurrentMinute { get; private set; }   
 
-        // 节流/跨天检测缓存（内部用）
-        private int _lastComputedDay = int.MinValue;
+        // 节流/跨天检测缓存（不知道什么用
+        private long _lastComputedDay = long.MinValue;
         private int _lastComputedHour = int.MinValue;
-
 
         #region === Unity Lifecycle ===
 
@@ -90,17 +88,18 @@ namespace ProjectSulamith.Core
                 Destroy(gameObject);
                 return;
             }
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
             int h = Mathf.Clamp(Mathf.FloorToInt(startDayTimeHour), 0, HoursPerDay - 1);
             int m = Mathf.Clamp(Mathf.FloorToInt(startDayTimeMinute), 0, MinutesPerHour - 1);
 
-            GameTimeMinutes = startDay * MinutesPerDay + h * MinutesPerHour + m;
+            GameTimeMinutes = (double)startDay * MinutesPerDay + (double)h * MinutesPerHour + (double)m;
 
-            //由开始时间进行初始化
             RecomputeCalendarAndBroadcastIfNeeded(force: true);
 
-            // 依据当前模式设置初始速率（避免被序列化残留影响）
+            // 初始速率
             switch (CurrentMode)
             {
                 case TimeMode.Simulation:
@@ -110,8 +109,8 @@ namespace ProjectSulamith.Core
 
                 case TimeMode.Realtime:
                 default:
-                    customSpeedMultiplier = 1f;                 // Realtime 忽略倍速
-                    CurrentSpeed = realtimeSpeed;               // 直接用实时速率
+                    customSpeedMultiplier = 1f;     
+                    CurrentSpeed = realtimeSpeed;   
                     break;
 
                 case TimeMode.Paused:
@@ -120,20 +119,20 @@ namespace ProjectSulamith.Core
                     break;
 
                 case TimeMode.Transition:
-                    // 过渡模式仅用于切换过程；这里给个中间值，也可直接设为 Realtime
                     customSpeedMultiplier = 1f;
                     CurrentSpeed = (simulationBaseSpeed + realtimeSpeed) * 0.5f;
                     break;
             }
 
             TargetSpeed = CurrentSpeed;
-            _lastBroadcastSpeed = CurrentSpeed; // 防止下一帧重复广播
+            _lastBroadcastSpeed = CurrentSpeed;
 
-            // 订阅事件
+            // 订阅
             EventBus.Instance?.Subscribe<TimeControlEvent>(OnTimeControlEvent);
 
-            // 广播一次初始状态（让 UI/系统拿到正确起始模式与速率）
+            // 广播初始状态
             EventBus.Instance?.Publish(new TimeModeChangedEvent { NewMode = CurrentMode });
+
             EventBus.Instance?.Publish(new SpeedChangedEvent
             {
                 NewSpeed = CurrentSpeed,
@@ -151,7 +150,7 @@ namespace ProjectSulamith.Core
         {
             float deltaReal = Time.unscaledDeltaTime;
 
-            // === 平滑速率过渡 ===
+            // 平滑速率
             if (_isTransitioning)
             {
                 CurrentSpeed = Mathf.SmoothDamp(
@@ -160,14 +159,16 @@ namespace ProjectSulamith.Core
                     ref _transitionVelocity,
                     transitionDuration
                 );
+
                 _transitionTimer += deltaReal;
+
                 if (Mathf.Abs(CurrentSpeed - TargetSpeed) <= 1f)
                 {
                     _isTransitioning = false;
                     CurrentSpeed = TargetSpeed;
-                    
                 }
-                // 节流广播：仅当速率变化显著时广播
+
+                // 节流
                 if (Mathf.Abs(CurrentSpeed - _lastBroadcastSpeed) > 0.1f)
                 {
                     _lastBroadcastSpeed = CurrentSpeed;
@@ -178,22 +179,21 @@ namespace ProjectSulamith.Core
                         Mode = CurrentMode
                     });
                 }
-
-                // 当接近目标速率时停止平滑
-                
             }
 
-            // === 逻辑时间推进 ===
+            
             if (CurrentMode != TimeMode.Paused)
             {
-                float deltaGame = deltaReal * CurrentSpeed / 60f;
-                GameTimeMinutes += deltaGame;
+               
+                double deltaGameMinutes = (double)deltaReal * (double)CurrentSpeed / 60.0;
+                GameTimeMinutes += deltaGameMinutes;
 
                 EventBus.Instance?.Publish(new GameTickEvent
                 {
-                    DeltaMinutes = deltaGame,
+                    DeltaMinutes = (float)deltaGameMinutes,
                     TotalMinutes = GameTimeMinutes
                 });
+
                 RecomputeCalendarAndBroadcastIfNeeded(force: false);
             }
         }
@@ -203,7 +203,7 @@ namespace ProjectSulamith.Core
         #region === 模式切换 ===
 
         /// <summary>
-        /// 切换时间模式（自动平滑过渡）。
+        /// 切换时间模式
         /// </summary>
         public void SetMode(TimeMode newMode)
         {
@@ -220,13 +220,16 @@ namespace ProjectSulamith.Core
                 case TimeMode.Simulation:
                     TargetSpeed = simulationBaseSpeed * customSpeedMultiplier;
                     break;
+
                 case TimeMode.Realtime:
                     TargetSpeed = realtimeSpeed;
-                    customSpeedMultiplier = 1f; // 锁定倍速
+                    customSpeedMultiplier = 1f; // 锁定
                     break;
+
                 case TimeMode.Paused:
                     TargetSpeed = 0f;
                     break;
+
                 case TimeMode.Transition:
                     TargetSpeed = (simulationBaseSpeed + realtimeSpeed) / 2f;
                     break;
@@ -239,11 +242,8 @@ namespace ProjectSulamith.Core
 
             Debug.Log($"[TimeManager] 模式切换：{newMode} → 目标速率 {TargetSpeed:F2}");
 
-            // 广播模式与速率变化事件
-            EventBus.Instance?.Publish(new TimeModeChangedEvent
-            {
-                NewMode = newMode
-            });
+            // 广播事件
+            EventBus.Instance?.Publish(new TimeModeChangedEvent { NewMode = newMode });
 
             EventBus.Instance?.Publish(new SpeedChangedEvent
             {
@@ -258,7 +258,7 @@ namespace ProjectSulamith.Core
         #region === 倍速控制（仅模拟模式） ===
 
         /// <summary>
-        /// 设置倍速（仅在模拟模式下生效）。
+        /// 设置倍速
         /// </summary>
         public void SetCustomSpeed(float multiplier)
         {
@@ -271,7 +271,7 @@ namespace ProjectSulamith.Core
             customSpeedMultiplier = Mathf.Clamp(multiplier, minMultiplier, maxMultiplier);
             TargetSpeed = simulationBaseSpeed * customSpeedMultiplier;
 
-            // 开启平滑插值
+            // 平滑插值
             _isTransitioning = true;
             _transitionTimer = 0f;
             _transitionVelocity = 0f;
@@ -298,13 +298,13 @@ namespace ProjectSulamith.Core
         public void Transition() => SetMode(TimeMode.Transition);
 
         public float GetCurrentSpeed() => CurrentSpeed;
-        public float GetGameMinutes() => GameTimeMinutes;
+
+       
+        public double GetGameMinutes() => GameTimeMinutes;
 
         public int GetCurrentDay() => CurrentDay;
         public int GetCurrentHour() => CurrentHour;
         public int GetCurrentMinute() => CurrentMinute;
-
-       
 
         #endregion
 
@@ -342,45 +342,37 @@ namespace ProjectSulamith.Core
         #endregion
 
         #region === 整点事件 ===
+
         private void RecomputeCalendarAndBroadcastIfNeeded(bool force)
         {
-            // 1) 基于总分钟计算 day + 当天分钟
-            // 允许 GameTimeMinutes 是 float，取 floor 保证时间稳定递增
-            int totalMinutesInt = Mathf.FloorToInt(GameTimeMinutes);
+           
+            long totalMinutesInt = (long)System.Math.Floor(GameTimeMinutes);
             if (totalMinutesInt < 0) totalMinutesInt = 0;
 
-            int dayIndex = totalMinutesInt / MinutesPerDay;
-            int dayMinute = totalMinutesInt % MinutesPerDay; // 0..1439
+            long dayIndex = totalMinutesInt / MinutesPerDay;
+            long dayMinute = totalMinutesInt % MinutesPerDay; 
 
-            int hour = dayMinute / MinutesPerHour;           // 0..23
-            int minute = dayMinute % MinutesPerHour;         // 0..59
+            int hour = (int)(dayMinute / MinutesPerHour);     
+            int minute = (int)(dayMinute % MinutesPerHour);   
 
-            // 2) 写入派生字段（只要变了才写，避免频繁脏标）
-            CurrentDay = dayIndex;
+            CurrentDay = (int)dayIndex;
             CurrentHour = hour;
             CurrentMinute = minute;
 
-            // 3) 跨天/整点检测（可选广播）
-            // 不想加新事件的话，这一段可以先留空；仅保留派生字段更新即可。
+            // 跨天/整点检测
             if (force || dayIndex != _lastComputedDay)
             {
                 _lastComputedDay = dayIndex;
-
-                // 可选：发布 DayChangedEvent（需要你在 EventsSystem.cs 里新增 struct）
-                // EventBus.Instance?.Publish(new DayChangedEvent { Day = CurrentDay });
+                
             }
 
             if (force || hour != _lastComputedHour)
             {
                 _lastComputedHour = hour;
-
-                // 可选：发布 HourChangedEvent
-                // EventBus.Instance?.Publish(new HourChangedEvent { Day = CurrentDay, Hour = CurrentHour });
+                
             }
         }
+
         #endregion
-
     }
-
-
 }

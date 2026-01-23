@@ -152,7 +152,7 @@ namespace ProjectSulamith.Core
     public struct GameTickEvent
     {
         public float DeltaMinutes;     // 增量分钟
-        public float TotalMinutes;     // 游戏内累计分钟
+        public double TotalMinutes;     // 游戏内累计分钟
     }
 
     /// <summary>
