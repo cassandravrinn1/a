@@ -36,6 +36,16 @@ public class ChatUIController : MonoBehaviour
 
     private List<Choice> pendingChoices = null;
 
+    private Queue<string> npcLineQueue = new Queue<string>();
+
+    // 仅表示“当前这行是否在打字等待中”
+    private bool isTyping = false;
+
+    // 关键：表示“NPC 队列输出流程是否进行中”
+    private bool isProcessingNpcQueue = false;
+
+    private GameObject currentTypingIndicator;
+
     private void Start()
     {
         if (inkManager != null)
@@ -55,34 +65,32 @@ public class ChatUIController : MonoBehaviour
     private void HandleInkLine(string line)
     {
         npcLineQueue.Enqueue(line);
-        if (!isTyping)
+
+        // 只要队列不在处理，就启动处理协程
+        if (!isProcessingNpcQueue)
             StartCoroutine(ProcessQueue());
     }
 
-
     private void HandleInkChoices(List<Choice> choices)
     {
-        // 如果苏拉米斯正在打字，则先缓存选项
-        if (isTyping)
+        // 只要 NPC 仍处于输出流程（打字/队列处理中/队列尚未清空），一律缓存
+        if (isTyping || isProcessingNpcQueue || npcLineQueue.Count > 0)
         {
             pendingChoices = choices;
             return;
         }
 
-        // 否则立即显示（和原来一样）
+        // 否则立即显示
         ShowChoicesInternal(choices);
     }
-
 
     private void HandleInkEnd()
     {
         ClearOptions();
-        npcLineQueue.Enqueue("……（通信结束）");
-        if (!isTyping)
+        npcLineQueue.Enqueue("通信结束（该ink文件结束");
+        if (!isProcessingNpcQueue)
             StartCoroutine(ProcessQueue());
-        
     }
-
 
     public void AddNpcMessage(string text)
     {
@@ -143,7 +151,9 @@ public class ChatUIController : MonoBehaviour
                 auto.SetText(options[i]);
             }
             else if (tmp != null)
+            {
                 tmp.text = options[i];
+            }
 
             var btn = go.GetComponent<Button>();
             btn.onClick.AddListener(() =>
@@ -152,7 +162,6 @@ public class ChatUIController : MonoBehaviour
             });
         }
     }
-    private GameObject currentTypingIndicator;
 
     private void ShowTypingIndicator()
     {
@@ -162,17 +171,11 @@ public class ChatUIController : MonoBehaviour
 
         currentTypingIndicator = Instantiate(typingIndicatorPrefab, typingIndicatorParent);
 
-        
-
         var tmp = currentTypingIndicator.GetComponentInChildren<TextMeshProUGUI>();
         Debug.Log("TMP 是否为空：" + (tmp == null));
-        Debug.Log("TMP 内容：" + tmp.text);
 
         if (tmp != null) tmp.text = "输入中…";
-        Debug.Log("修改后 TMP 内容：" + tmp.text);
     }
-
-
 
     private void HideTypingIndicator()
     {
@@ -182,6 +185,7 @@ public class ChatUIController : MonoBehaviour
             currentTypingIndicator = null;
         }
     }
+
     private void ShowChoicesInternal(List<Choice> choices)
     {
         ClearOptions();
@@ -197,8 +201,6 @@ public class ChatUIController : MonoBehaviour
             inkManager.ChooseOption(index);
         });
     }
-
-    private bool isTyping = false;
 
     private IEnumerator DisplayLineWithTypingDelay(string line)
     {
@@ -216,24 +218,12 @@ public class ChatUIController : MonoBehaviour
         AddNpcMessage(line);
 
         isTyping = false;
-
-        // 如果玩家选项已经在打字时到来了，现在才显示
-        if (pendingChoices != null)
-        {
-            ShowChoicesInternal(pendingChoices);
-            pendingChoices = null;
-        }
-
         yield break;
     }
 
-    private Queue<string> npcLineQueue = new Queue<string>();
-    
-
-   
     private IEnumerator ProcessQueue()
     {
-        isTyping = true;
+        isProcessingNpcQueue = true;
 
         while (npcLineQueue.Count > 0)
         {
@@ -241,11 +231,13 @@ public class ChatUIController : MonoBehaviour
             yield return StartCoroutine(DisplayLineWithTypingDelay(line));
         }
 
-        isTyping = false;
+        isProcessingNpcQueue = false;
+
+        // 关键：只在 NPC 全部输出完毕后再展示选项
+        if (pendingChoices != null)
+        {
+            ShowChoicesInternal(pendingChoices);
+            pendingChoices = null;
+        }
     }
-
-
-
-
-
 }

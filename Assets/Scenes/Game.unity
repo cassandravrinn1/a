@@ -1197,7 +1197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   simulationBaseSpeed: 120
   realtimeSpeed: 1
-  transitionDuration: 1
+  transitionDuration: 0
   customSpeedMultiplier: 1
   minMultiplier: 0.25
   maxMultiplier: 4
@@ -1854,55 +1854,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 281340956}
   m_CullTransparentMesh: 1
---- !u!1 &287832977
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 287832979}
-  - component: {fileID: 287832980}
-  m_Layer: 0
-  m_Name: InkController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &287832979
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 287832977}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.17164826, y: 0.7373093, z: -0.028283056}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1642725682}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &287832980
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 287832977}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b1b0bb807fcb514ab125a7e4d7bcc49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inkJSONAsset: {fileID: 4900000, guid: f346a8e26d4749b4c995f429d289aadd, type: 3}
-  commandTagPrefix: 'cmd:'
-  logCommands: 1
-  warnUnknownCommands: 1
-  maxCommandsPerContinueStep: 32
 --- !u!1 &306985889
 GameObject:
   m_ObjectHideFlags: 0
@@ -12002,8 +11953,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -804, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -639.43616, y: 163}
+  m_SizeDelta: {x: 641.1277, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1505637656
 MonoBehaviour:
@@ -12699,7 +12650,6 @@ Transform:
   - {fileID: 1972418012}
   - {fileID: 1230551652}
   - {fileID: 1385090886}
-  - {fileID: 287832979}
   - {fileID: 1937570364}
   - {fileID: 393677284}
   m_Father: {fileID: 0}
@@ -14243,11 +14193,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b1b0bb807fcb514ab125a7e4d7bcc49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inkJSONAsset: {fileID: 4900000, guid: f346a8e26d4749b4c995f429d289aadd, type: 3}
+  inkJSONAsset: {fileID: 4900000, guid: 340196f96b286fd4ca703ebf3b61da27, type: 3}
   commandTagPrefix: 'cmd:'
   logCommands: 1
   warnUnknownCommands: 1
   maxCommandsPerContinueStep: 32
+  currentInkId: Main
+  _scheduledTasks: []
+  inkLibrary:
+  - Id: MainTest
+    InkJson: {fileID: 4900000, guid: 03553d1b2d0d6234399987d80383b86e, type: 3}
+  - Id: HealthTest
+    InkJson: {fileID: 4900000, guid: be90a5acda039a94a88f82c9846f1531, type: 3}
+  - Id: PersonalityTest
+    InkJson: {fileID: 4900000, guid: 574563d25c0f44b4298f5930ee282a0e, type: 3}
+  - Id: ScheduleTest
+    InkJson: {fileID: 4900000, guid: 35d5884fcf87246439d532c86db304f5, type: 3}
+  - Id: StressTest
+    InkJson: {fileID: 4900000, guid: 7839b00404588cb459c8b6f7efd2a04e, type: 3}
 --- !u!4 &1972418012
 Transform:
   m_ObjectHideFlags: 0
