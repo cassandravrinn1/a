@@ -23,6 +23,12 @@ namespace ProjectSulamith.TechTree
 
         [Header("前置科技")]
         public List<TechNodeData> prerequisites = new List<TechNodeData>();
+
+        //与苏拉米斯讨论
+        [Header("讨论配置")]
+        public string discussionInkId;     // 例如 "TechDiscussion_SolarHeater"  科技名称
+        public string discussionEntryKnot = "start";//默认start
+        public bool allowDiscussWhenLocked = false; // 可选：锁定时是否允许“提前讨论”
     }
 
     public enum TechCategory
@@ -36,4 +42,11 @@ namespace ProjectSulamith.TechTree
         Hull,
         StormPrep
     }
+
+
+
+   
+
+
+
 }

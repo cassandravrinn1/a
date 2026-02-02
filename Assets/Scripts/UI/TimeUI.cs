@@ -27,7 +27,7 @@ namespace ProjectSulamith.UI
         private TimeMode _currentMode = TimeMode.Realtime;
         private float _currentSpeed = 0f;
         private float _customMultiplier = 1f;
-        private float _gameMinutes = 0f;
+        private double _gameMinutes = 0f;
 
         private int _day = 0;
         private int _hour = 0;
