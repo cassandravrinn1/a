@@ -1,7 +1,8 @@
 // Assets/Scripts/Systems/ResourceSystem.cs
-using UnityEngine;
 using ProjectSulamith.Core;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace ProjectSulamith.Systems
 {
@@ -24,10 +25,14 @@ namespace ProjectSulamith.Systems
         [Header("Building yields")]
         [SerializeField] private BuildingYieldConfig buildingYieldConfig;
 
+        [SerializeField] private List<BuildingDef> buildingDefs; // 建筑配置列表（存放各建筑最大派遣人数）
         // prototypeId -> count
         private readonly System.Collections.Generic.Dictionary<string, int> _buildingCounts
             = new System.Collections.Generic.Dictionary<string, int>(System.StringComparer.Ordinal);
 
+        // 建筑ID -> 已派遣人数（核心派遣数据）
+        private readonly Dictionary<string, int> _buildingTotalAssignPersons
+            = new Dictionary<string, int>(StringComparer.Ordinal);
 
         [Header("Consume per minute（可小数）")]
         [SerializeField] private float foodConsumePerMin = 2f;
@@ -49,6 +54,24 @@ namespace ProjectSulamith.Systems
         private int _lastMat = int.MinValue;
         private int _lastEnergy = int.MinValue;
 
+        private Dictionary<string, BuildingDef> _buildingDefMap;
+
+        // 核心：每个建筑独立效率计算
+        public float GetBuildingEfficiency(string buildingId)
+        {
+            if (!_buildingDefMap.TryGetValue(buildingId, out BuildingDef def))
+                return 1f;
+
+            int assigned = _buildingTotalAssignPersons.TryGetValue(buildingId, out int count) ? count : 0;
+
+            // 效率 = 1 + 人数 * 每人效率（组长可在BuildingDef配置）
+            float efficiency = 1f + assigned * def.efficiencyPerPerson;
+
+            // 防止效率过低或过高（可根据需求调整）
+            efficiency = Mathf.Max(efficiency, 0.1f);
+
+            return efficiency;
+        }
         public void Tick(float dm)
         {
             var rate = ComputeNetRatePerMin(); // (food, mat, energy) 每分钟净变化
@@ -74,14 +97,29 @@ namespace ProjectSulamith.Systems
             {
                 foreach (var kv in _buildingCounts)
                 {
-                    if (kv.Value <= 0) continue;
-                    if (!buildingYieldConfig.TryGet(kv.Key, out var entry)) continue;
+                    string buildingId = kv.Key;
+                    int count = kv.Value;
 
-                    food += entry.foodPerMin * kv.Value;
-                    mat += entry.matPerMin * kv.Value;
-                    energy += entry.energyPerMin * kv.Value;
+                    if (count <= 0) continue;
+                    if (!buildingYieldConfig.TryGet(buildingId, out var entry)) continue;
+
+                    // 关键：每个建筑独立效率
+                    float efficiency = GetBuildingEfficiency(buildingId);
+
+                    food += entry.foodPerMin * count * efficiency;
+                    mat += entry.matPerMin * count * efficiency;
+                    energy += entry.energyPerMin * count * efficiency;
                 }
             }
+            // 扣除消耗
+            food -= foodConsumePerMin;
+            mat -= matConsumePerMin;
+            energy -= energyConsumePerMin;
+
+            // 确保产量不为负
+            food = Mathf.Max(0f, food);
+            mat = Mathf.Max(0f, mat);
+            energy = Mathf.Max(0f, energy);
 
             return new Vector3(food, mat, energy);
         }
@@ -94,6 +132,10 @@ namespace ProjectSulamith.Systems
             _energyInt = Mathf.Clamp(energyCap / 2, 0, energyCap);
 
             _foodFrac = _matFrac = _energyFrac = 0f;
+
+            // 初始化BuildingDef字典
+            InitBuildingDefMap();
+
             BroadcastIfChanged(force: true);
         }
 
@@ -108,6 +150,7 @@ namespace ProjectSulamith.Systems
         {
             EventBus.Instance?.Subscribe<SpendResourcesRequest>(OnSpendResourcesRequest);
             EventBus.Instance?.Subscribe<BuildingPlacedEvent>(OnBuildingPlaced);
+            EventBus.Instance?.Subscribe<BuildingAssignPersonRequest>(OnBuildingAssignPersonRequest);
         }
 
         private void OnDisable()
@@ -115,6 +158,7 @@ namespace ProjectSulamith.Systems
             if (EventBus.Instance == null) return;
             EventBus.Instance.Unsubscribe<SpendResourcesRequest>(OnSpendResourcesRequest);
             EventBus.Instance.Unsubscribe<BuildingPlacedEvent>(OnBuildingPlaced);
+            EventBus.Instance.Unsubscribe<BuildingAssignPersonRequest>(OnBuildingAssignPersonRequest);
         }
 
         private void OnBuildingPlaced(BuildingPlacedEvent e)
@@ -128,6 +172,66 @@ namespace ProjectSulamith.Systems
             // BroadcastIfChanged(force: true);
         }
 
+        // 处理派遣人口请求
+        private void OnBuildingAssignPersonRequest(BuildingAssignPersonRequest req)
+        {
+            if (req == null) return;
+
+            // 1. 校验建筑是否存在
+            if (!_buildingCounts.ContainsKey(req.PrototypeId) || _buildingCounts[req.PrototypeId] <= 0)
+            {
+                PublishAssignPersonResult(req, false, 0, 0);
+                Debug.LogWarning($"建筑{req.PrototypeId}不存在，无法派遣人口");
+                return;
+            }
+
+            // 2. 校验建筑最大派遣人数（解决CS0165报错：def未赋值）
+            BuildingDef def = null;
+            if (!_buildingDefMap.TryGetValue(req.PrototypeId, out def))
+            {
+                PublishAssignPersonResult(req, false, 0, 0);
+                Debug.LogWarning($" 未找到建筑{req.PrototypeId}的配置，无法派遣人口");
+                return;
+            }
+
+            if (req.TotalAssignPerson > def.maxAssignable)
+            {
+                PublishAssignPersonResult(req, false, 0, def.maxAssignable);
+                Debug.LogWarning($"{req.PrototypeId}最大可派{def.maxAssignable}人，请求派遣{req.TotalAssignPerson}人");
+                return;
+            }
+
+            // 3. 校验全局可派遣人口（健康人口）
+            var populationSys = FindObjectOfType<PopulationSystem>(true);
+            int maxAssignable = populationSys?.GetAssignablePopulation() ?? 0;
+            if (req.TotalAssignPerson > maxAssignable)
+            {
+                PublishAssignPersonResult(req, false, 0, maxAssignable);
+                Debug.LogWarning($" 全局可派遣人口不足！当前{maxAssignable}，请求{req.TotalAssignPerson}");
+                return;
+            }
+
+            // 4. 更新派遣人数
+            _buildingTotalAssignPersons[req.PrototypeId] = req.TotalAssignPerson;
+            PublishAssignPersonResult(req, true, req.TotalAssignPerson, def.maxAssignable);
+
+            // 5. 立即广播产量变化
+            BroadcastIfChanged(force: true);
+            Debug.Log($"{req.PrototypeId}派遣{req.TotalAssignPerson}人成功");
+        }
+
+        // 发布派遣结果
+        private void PublishAssignPersonResult(BuildingAssignPersonRequest req, bool ok, int current, int max)
+        {
+            EventBus.Instance?.Publish(new BuildingAssignPersonResult
+            {
+                Ok = ok,
+                PrototypeId = req.PrototypeId,
+                CurrentTotalPerson = current,
+                MaxTotalPerson = max,
+                TxId = req.TxId
+            });
+        }
         #endregion
 
         #region Spend APIs
@@ -153,7 +257,7 @@ namespace ProjectSulamith.Systems
                 _matInt = Mathf.Max(0, _matInt);
                 _energyInt = Mathf.Max(0, _energyInt);
 
-                BroadcastIfChanged(force: false);
+                BroadcastIfChanged();
             }
 
             EventBus.Instance?.Publish(new SpendResourcesResult
@@ -202,6 +306,22 @@ namespace ProjectSulamith.Systems
                 });
             }
         }
+        // 初始化BuildingDef字典
+        private void InitBuildingDefMap()
+        {
+            _buildingDefMap = new Dictionary<string, BuildingDef>(StringComparer.Ordinal);
+            if (buildingDefs == null || buildingDefs.Count == 0)
+            {
+                Debug.LogWarning("未配置BuildingDef列表，请在Inspector中添加！");
+                return;
+            }
+
+            foreach (var def in buildingDefs)
+            {
+                if (def == null || string.IsNullOrEmpty(def.id)) continue;
+                _buildingDefMap[def.id] = def;
+            }
+        }
         #endregion
 
         #region (可选) 对外只读属性
@@ -212,6 +332,17 @@ namespace ProjectSulamith.Systems
         public int FoodCap => foodCap;
         public int MatCap => matCap;
         public int EnergyCap => energyCap;
+
+        // 对外暴露BuildingDef字典
+        public Dictionary<string, BuildingDef> BuildingDefMap => _buildingDefMap;
+
+        // 获取指定建筑的已派遣人数
+        public int GetAssignedPersons(string prototypeId)
+        {
+            if (string.IsNullOrEmpty(prototypeId) || !_buildingTotalAssignPersons.ContainsKey(prototypeId))
+                return 0;
+            return _buildingTotalAssignPersons[prototypeId];
+        }
         #endregion
 
         #region 兼容的内部状态类（如有 UI/存档引用可保留）
@@ -224,6 +355,5 @@ namespace ProjectSulamith.Systems
         #endregion
     }
 
-    
 }
 #endregion
