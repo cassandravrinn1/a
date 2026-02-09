@@ -27,7 +27,7 @@ public class HexBuildingPlacer : MonoBehaviour
         _bus = EventBus.Instance;
         _bus?.Subscribe<BuildAccepted>(OnBuildAccepted);
 
-        // 重要：你原来写了 OnBuildRequest 但没订阅，这里顺手补上（不影响本问题，但能让 pendingBuilds 真正生效）
+        
         _bus?.Subscribe<BuildRequest>(OnBuildRequest);
     }
 
@@ -43,7 +43,7 @@ public class HexBuildingPlacer : MonoBehaviour
 
     void Awake()
     {
-        // 如果你没在 Inspector 里拖 buildingParent，就默认用自己（推荐你在场景里建一个 Buildings 容器再拖进来）
+        
         if (buildingParent == null)
             buildingParent = this.transform;
     }

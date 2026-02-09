@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using ProjectSulamith.Dialogue;
 
 namespace ProjectSulamith.TechTree
 {
@@ -13,136 +15,273 @@ namespace ProjectSulamith.TechTree
         Deferred
     }
 
+    /// <summary>
+    /// TechSystem（一体化 v1）：
+    /// - 状态表：Locked/Available/Discussing/Unlocked/Rejected/Deferred
+    /// - 前置判断：TechNodeData.prerequisites
+    /// - 讨论入口：StartDiscussion(node) -> inkManager.ExecuteCommand("switch_ink ...")
+    /// - Ink 回写：OnTechCommit(techId, decision) 由 InkManager 在解析到 tech_commit 时调用
+    ///
+    /// v1 策略（最简闭环）：
+    /// - 前置不满足：默认不允许讨论（可用 allowDiscussWhenLocked 开关放开）
+    /// - Unlocked 后调用 RefreshAvailability 推动后续可用
+    /// </summary>
     public class TechSystem : MonoBehaviour
     {
+        #region Singleton
+
         public static TechSystem Instance { get; private set; }
-
-        [Header("All Tech Nodes (for init & refresh)")]
-        public List<TechNodeData> allNodes = new List<TechNodeData>();
-
-        [Header("Ink Command Entry")]
-        [Tooltip("你的 InkManager（需要提供 ExecuteCommand(string) 外部接口）")]
-        public MonoBehaviour inkManagerBehaviour; // 拖拽你的 InkManager
-        private IInkCommandSink _ink;
-
-        // 状态表
-        private readonly Dictionary<string, TechState> _states = new();
-
-        // 讨论会话互斥
-        public bool IsDiscussing { get; private set; }
-        public string CurrentTechId { get; private set; }
 
         private void Awake()
         {
-            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            _ink = inkManagerBehaviour as IInkCommandSink;
-            if (_ink == null && inkManagerBehaviour != null)
-                Debug.LogError("[TechSystem] inkManagerBehaviour must implement IInkCommandSink (ExecuteCommand).");
-
+            BuildIndex();
             InitializeStates();
-            RefreshAvailability();
+            RefreshAvailability(notify: false);
+        }
+
+        #endregion
+
+        #region Inspector
+
+        [Header("Tech Nodes")]
+        [Tooltip("全量科技节点（用于初始化/刷新可用性）。通常由 TechTree UI 生成器持有同一份列表。")]
+        public List<TechNodeData> allNodes = new List<TechNodeData>();
+
+        [Header("Ink")]
+        [Tooltip("场景中的 InkManager 引用（必须填写）。")]
+        public InkManager inkManager;
+
+        [Header("Policy")]
+        [Tooltip("Rejected 后是否允许再次讨论（默认 false）")]
+        public bool allowReDiscussRejected = false;
+
+        [Tooltip("Deferred 后是否允许再次讨论（默认 true）")]
+        public bool allowReDiscussDeferred = true;
+
+        [Header("Debug")]
+        public bool logTech = false;
+
+        #endregion
+
+        #region Public Events
+
+        /// <summary>
+        /// 给 UI 刷新用：techId,newState
+        /// </summary>
+        public event Action<string, TechState> OnStateChanged;
+
+        #endregion
+
+        #region Runtime
+
+        private readonly Dictionary<string, TechNodeData> _nodeById = new Dictionary<string, TechNodeData>();
+        private readonly Dictionary<string, TechState> _stateById = new Dictionary<string, TechState>();
+
+        public bool IsDiscussing { get; private set; }
+        public string CurrentTechId { get; private set; }
+
+        #endregion
+
+        #region Index / Init
+        public void RebuildFromNodes(List<TechNodeData> nodes, bool refreshAvailability = true, bool notify = false)
+        {
+            allNodes = nodes ?? new List<TechNodeData>();
+
+            // 重新建立索引
+            _nodeById.Clear();
+            foreach (var n in allNodes)
+            {
+                if (n == null) continue;
+                if (string.IsNullOrEmpty(n.id))
+                {
+                    Debug.LogWarning("[TechSystem] TechNodeData has empty id, skipped.");
+                    continue;
+                }
+
+                if (_nodeById.ContainsKey(n.id))
+                    Debug.LogWarning($"[TechSystem] Duplicate tech id '{n.id}', last one wins.");
+
+                _nodeById[n.id] = n;
+
+                // 初始化尚未出现过的状态 key（给存档/运行期扩展留余地）
+                if (!_stateById.ContainsKey(n.id))
+                    _stateById[n.id] = TechState.Locked;
+            }
+
+            
+
+            if (refreshAvailability)
+                RefreshAvailability(notify);
+        }
+
+        private void BuildIndex()
+        {
+            _nodeById.Clear();
+
+            foreach (var n in allNodes)
+            {
+                if (n == null) continue;
+                if (string.IsNullOrEmpty(n.id))
+                {
+                    Debug.LogWarning("[TechSystem] TechNodeData has empty id, skipped.");
+                    continue;
+                }
+
+                if (_nodeById.ContainsKey(n.id))
+                    Debug.LogWarning($"[TechSystem] Duplicate tech id '{n.id}', last one wins.");
+
+                _nodeById[n.id] = n;
+            }
         }
 
         private void InitializeStates()
         {
-            _states.Clear();
-
-            foreach (var n in allNodes)
+            foreach (var kv in _nodeById)
             {
-                if (n == null || string.IsNullOrEmpty(n.id)) continue;
-                _states[n.id] = TechState.Locked;
+                if (!_stateById.ContainsKey(kv.Key))
+                    _stateById[kv.Key] = TechState.Locked;
             }
         }
 
-        // =========================
-        // Queries
-        // =========================
+        #endregion
+
+        #region Query
+
+        public TechNodeData GetNode(string techId)
+        {
+            if (string.IsNullOrEmpty(techId)) return null;
+            _nodeById.TryGetValue(techId, out var n);
+            return n;
+        }
 
         public TechState GetState(string techId)
-            => _states.TryGetValue(techId, out var s) ? s : TechState.Locked;
+        {
+            if (string.IsNullOrEmpty(techId)) return TechState.Locked;
+            return _stateById.TryGetValue(techId, out var s) ? s : TechState.Locked;
+        }
 
         public bool IsUnlocked(string techId) => GetState(techId) == TechState.Unlocked;
 
         public bool PrerequisitesMet(TechNodeData node)
         {
             if (node == null) return false;
-            if (node.prerequisites == null || node.prerequisites.Count == 0) return true;
 
-            foreach (var pre in node.prerequisites)
+            var prereqs = node.prerequisites;
+            if (prereqs == null || prereqs.Count == 0) return true;
+
+            for (int i = 0; i < prereqs.Count; i++)
             {
+                var pre = prereqs[i];
                 if (pre == null) continue;
-                if (!IsUnlocked(pre.id)) return false;
+                if (string.IsNullOrEmpty(pre.id)) continue;
+
+                if (!IsUnlocked(pre.id))
+                    return false;
             }
+
             return true;
         }
 
+        /// <summary>
+        /// v1：是否允许开启讨论（不考虑研究点/资源/耗时，只看状态与前置）
+        /// </summary>
         public bool CanDiscuss(TechNodeData node)
         {
             if (node == null) return false;
+            if (IsDiscussing) return false;
 
             var st = GetState(node.id);
-            if (st == TechState.Unlocked) return false; // 已解锁无需讨论
 
-            if (PrerequisitesMet(node)) return true;
-            return node.allowDiscussWhenLocked;
+            if (st == TechState.Unlocked) return false;
+            if (st == TechState.Rejected && !allowReDiscussRejected) return false;
+            if (st == TechState.Deferred && !allowReDiscussDeferred) return false;
+
+            // 前置未满足：默认不允许；如果你在 TechNodeData 里加了 allowDiscussWhenLocked，则允许“理论讨论”
+            if (!PrerequisitesMet(node))
+            {
+                // 如果你没加该字段，把这句改成 return false;
+                return node.allowDiscussWhenLocked;
+            }
+
+            // 必须配置讨论 Ink
+            if (string.IsNullOrEmpty(node.discussionInkId)) return false;
+
+            return true;
         }
 
-        // =========================
-        // State mutations
-        // =========================
+        #endregion
 
-        public void SetState(string techId, TechState state)
+        #region State
+
+        public void SetState(string techId, TechState newState, bool notify = true)
         {
             if (string.IsNullOrEmpty(techId)) return;
-            _states[techId] = state;
+
+            _stateById[techId] = newState;
+
+            if (logTech) Debug.Log($"[TechSystem] {techId} -> {newState}");
+
+            if (notify)
+                OnStateChanged?.Invoke(techId, newState);
         }
 
-        public void RefreshAvailability()
+        /// <summary>
+        /// 刷新 Locked/Available（不会覆盖 Unlocked/Rejected/Discussing）
+        /// </summary>
+        public void RefreshAvailability(bool notify = true)
         {
-            foreach (var n in allNodes)
+            foreach (var kv in _nodeById)
             {
-                if (n == null || string.IsNullOrEmpty(n.id)) continue;
+                var id = kv.Key;
+                var node = kv.Value;
 
-                var st = GetState(n.id);
-                if (st == TechState.Unlocked || st == TechState.Rejected) continue;
-                if (st == TechState.Discussing) continue; // 讨论中别被刷新覆盖
+                var st = GetState(id);
+                if (st == TechState.Unlocked || st == TechState.Rejected || st == TechState.Discussing)
+                    continue;
 
-                _states[n.id] = PrerequisitesMet(n) ? TechState.Available : TechState.Locked;
+                var target = PrerequisitesMet(node) ? TechState.Available : TechState.Locked;
+                if (target != st)
+                    SetState(id, target, notify);
             }
         }
 
-        // =========================
-        // Tech discussion entry
-        // =========================
+        #endregion
 
+        #region Discussion Flow
+
+        /// <summary>
+        /// UI 节点按钮调用：开启讨论（会调用 InkManager.ExecuteCommand -> switch_ink）
+        /// </summary>
         public bool StartDiscussion(TechNodeData node)
         {
             if (node == null) return false;
-            if (IsDiscussing) return false;
-            if (!CanDiscuss(node)) return false;
 
-            if (string.IsNullOrEmpty(node.discussionInkId))
+            if (inkManager == null)
             {
-                Debug.LogError($"[TechSystem] Tech '{node.id}' missing discussionInkId.");
+                Debug.LogError("[TechSystem] inkManager is null. Assign it in Inspector.");
                 return false;
             }
+
+            if (!CanDiscuss(node)) return false;
 
             IsDiscussing = true;
             CurrentTechId = node.id;
 
-            SetState(node.id, TechState.Discussing);
+            SetState(node.id, TechState.Discussing, notify: true);
 
-            // 统一从这里走你现有 cmd 管线
-            if (_ink == null)
-            {
-                Debug.LogError("[TechSystem] Ink command sink not set.");
-                return false;
-            }
+            string entry = string.IsNullOrEmpty(node.discussionEntryKnot) ? "start" : node.discussionEntryKnot;
 
-            _ink.ExecuteCommand($"switch_ink {node.discussionInkId} {node.discussionEntryKnot}");
+            // 关键：直接走你的外部接口（同一条命令管线）
+            inkManager.ExecuteCommand($"switch_ink {node.discussionInkId} {entry}");
 
             return true;
         }
@@ -153,63 +292,65 @@ namespace ProjectSulamith.TechTree
             CurrentTechId = null;
         }
 
-        // =========================
-        // Called by InkManager when cmd is tech_commit
-        // =========================
-
         /// <summary>
-        /// Ink: #cmd: tech_commit <techId> <unlock|reject|defer>
+        /// 由 InkManager 在解析到 "tech_commit" 命令时调用：
+        /// Ink 写法：#cmd: tech_commit <techId> <unlock|reject|defer>
         /// </summary>
         public void OnTechCommit(string techId, string decision)
         {
             if (string.IsNullOrEmpty(techId))
             {
-                Debug.LogWarning("[TechSystem] OnTechCommit techId is empty.");
+                Debug.LogWarning("[TechSystem] tech_commit missing techId.");
                 return;
             }
+
+            TechState target;
 
             switch (decision)
             {
                 case "unlock":
-                    SetState(techId, TechState.Unlocked);
+                    target = TechState.Unlocked;
                     break;
 
                 case "reject":
-                    SetState(techId, TechState.Rejected);
+                    target = TechState.Rejected;
                     break;
 
                 case "defer":
-                    SetState(techId, TechState.Deferred);
+                    target = TechState.Deferred;
                     break;
 
                 default:
-                    Debug.LogWarning($"[TechSystem] Unknown decision '{decision}' for tech '{techId}'.");
-                    // 回退为 Available/Locked 取决于前置
-                    SetState(techId, PrerequisitesMet(FindNode(techId)) ? TechState.Available : TechState.Locked);
+                    Debug.LogWarning($"[TechSystem] tech_commit unknown decision '{decision}' (techId={techId})");
+                    var node = GetNode(techId);
+                    target = (node != null && PrerequisitesMet(node)) ? TechState.Available : TechState.Locked;
                     break;
             }
 
+            SetState(techId, target, notify: true);
+
             EndDiscussionInternal();
-            RefreshAvailability();
-
-            // 这里你可以通知 UI 刷新（如果 UI 不是每帧轮询）
-            // EventBus.Instance?.Publish(new TechStateChangedEvent { TechId = techId });
+            RefreshAvailability(notify: true);
         }
 
-        private TechNodeData FindNode(string techId)
+        #endregion
+
+        #region Optional Save/Load Helpers
+
+        public Dictionary<string, TechState> ExportStates()
+            => new Dictionary<string, TechState>(_stateById);
+
+        public void ApplySavedStates(Dictionary<string, TechState> saved, bool notify = false)
         {
-            if (string.IsNullOrEmpty(techId)) return null;
-            foreach (var n in allNodes)
-                if (n != null && n.id == techId) return n;
-            return null;
-        }
-    }
+            if (saved == null) return;
 
-    /// <summary>
-    /// 让你的 InkManager 实现这个接口即可被 TechSystem 调用 ExecuteCommand。
-    /// </summary>
-    public interface IInkCommandSink
-    {
-        void ExecuteCommand(string cmdLine);
+            foreach (var kv in saved)
+                _stateById[kv.Key] = kv.Value;
+
+            InitializeStates();
+            RefreshAvailability(notify);
+        }
+
+        #endregion
     }
 }

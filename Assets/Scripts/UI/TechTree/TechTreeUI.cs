@@ -15,6 +15,9 @@ namespace ProjectSulamith.TechTree
         [Header("数据")]
         public List<TechNodeData> allNodes = new List<TechNodeData>();
 
+        [Header("系统")]
+        public TechSystem techSystem; // ★ 新增：拖拽或运行时 Find
+
         [Header("详情面板")]
         public TMP_Text nameText;
         public TMP_Text descText;
@@ -25,15 +28,40 @@ namespace ProjectSulamith.TechTree
         private readonly Dictionary<TechNodeData, TechNodeView> _dataToView
             = new Dictionary<TechNodeData, TechNodeView>();
 
-        private readonly HashSet<string> _unlockedIds = new HashSet<string>();
         private TechNodeView _currentSelected;
 
         [Header("连线材质")]
         public Material lineMaterial;
         public float lineWidth = 2f;
 
+        private void Awake()
+        {
+            // 兜底：不想手拖就自动找
+            if (techSystem == null) techSystem = TechSystem.Instance;
+        }
+
+        private void OnEnable()
+        {
+            if (techSystem != null)
+                techSystem.OnStateChanged += HandleTechStateChanged;
+        }
+
+        private void OnDisable()
+        {
+            if (techSystem != null)
+                techSystem.OnStateChanged -= HandleTechStateChanged;
+        }
+
         private void Start()
         {
+            // ★ 把你的节点列表“注册”给 TechSystem，避免重复手填
+            if (techSystem != null)
+            {
+                techSystem.allNodes = allNodes;        // 最小改动：直接赋值
+                // 如果你实现了 SetAllNodes(...)，这里就更干净：
+                // techSystem.SetAllNodes(allNodes);
+            }
+
             BuildTree();
             RefreshAllNodeStates();
             BuildAllConnections();
@@ -54,54 +82,51 @@ namespace ProjectSulamith.TechTree
         private void BuildTree()
         {
             foreach (Transform child in nodesContainer)
-            {
                 Destroy(child.gameObject);
-            }
 
             _dataToView.Clear();
 
             foreach (var nodeData in allNodes)
             {
                 var view = Instantiate(nodePrefab, nodesContainer);
-                // 初始全部锁定，稍后会根据前置条件刷新
+
+                // 初始状态由 RefreshAllNodeStates 统一刷新
                 view.Initialize(nodeData, this, unlocked: false, available: false);
                 _dataToView[nodeData] = view;
             }
         }
 
-        // 每次状态变化时刷新所有节点的锁定/可用状态
+        // ★ 由 TechSystem 状态驱动 UI
         private void RefreshAllNodeStates()
         {
             foreach (var kvp in _dataToView)
             {
                 var data = kvp.Key;
-                bool unlocked = _unlockedIds.Contains(data.id);
-                bool available = !unlocked && ArePrerequisitesMet(data);
+
+                bool unlocked = techSystem != null && techSystem.IsUnlocked(data.id);
+
+                // “available”的含义你可以有两种：
+                // A) 仅表示前置满足（可进入讨论/可解锁）
+                // B) 表示按钮可点（讨论可发起）
+                // 我这里按 v1：前置满足且未解锁且未拒绝 => available
+                bool prereqMet = techSystem != null && techSystem.PrerequisitesMet(data);
+                var st = techSystem != null ? techSystem.GetState(data.id) : TechState.Locked;
+
+                bool available =
+                    !unlocked &&
+                    prereqMet &&
+                    st != TechState.Rejected &&
+                    st != TechState.Discussing;
+
                 kvp.Value.SetState(unlocked, available);
             }
         }
 
-        private bool ArePrerequisitesMet(TechNodeData data)
-        {
-            if (data.prerequisites == null || data.prerequisites.Count == 0)
-                return true; // 没有前置就默认可研发
-
-            foreach (var pre in data.prerequisites)
-            {
-                if (pre == null) continue;
-                if (!_unlockedIds.Contains(pre.id))
-                    return false;
-            }
-            return true;
-        }
-
-        // 画连线
+        // 画连线（不变）
         private void BuildAllConnections()
         {
             foreach (Transform child in connectionsContainer)
-            {
                 Destroy(child.gameObject);
-            }
 
             foreach (var nodeData in allNodes)
             {
@@ -125,14 +150,12 @@ namespace ProjectSulamith.TechTree
         private void CreateConnection(Vector3 from, Vector3 to)
         {
             var go = new GameObject("Connection", typeof(LineRenderer));
-            go.transform.SetParent(connectionsContainer, false); // 重点：false = 保持局部坐标
+            go.transform.SetParent(connectionsContainer, false);
 
             var lr = go.GetComponent<LineRenderer>();
-
-            lr.useWorldSpace = false;   // ★ 非常关键
+            lr.useWorldSpace = false;
             lr.positionCount = 2;
 
-            // 将屏幕坐标转换成容器的本地坐标
             Vector2 localA, localB;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 (RectTransform)connectionsContainer, from, null, out localA);
@@ -142,7 +165,7 @@ namespace ProjectSulamith.TechTree
             lr.SetPosition(0, localA);
             lr.SetPosition(1, localB);
 
-            lr.startWidth = 2f / 100f; // UI 下推荐 0.01 ~ 0.05f
+            lr.startWidth = 2f / 100f;
             lr.endWidth = 2f / 100f;
 
             lr.material = lineMaterial;
@@ -151,15 +174,8 @@ namespace ProjectSulamith.TechTree
 
         // ===== 来自 NodeView 的回调 =====
 
-        public void OnNodeHovered(TechNodeView node)
-        {
-            // 目前什么都不做，之后可以在这里高亮它的前置/后继线
-        }
-
-        public void OnNodeHoverExit(TechNodeView node)
-        {
-            // 先留空
-        }
+        public void OnNodeHovered(TechNodeView node) { }
+        public void OnNodeHoverExit(TechNodeView node) { }
 
         public void OnNodeClicked(TechNodeView node)
         {
@@ -177,10 +193,31 @@ namespace ProjectSulamith.TechTree
             descText.text = node.Data.description;
             costText.text = $"消耗：{node.Data.cost} 科技点";
 
-            if (unlockButton != null)
+            if (unlockButton == null) return;
+
+            if (techSystem == null)
             {
-                bool canUnlock = !node.IsUnlocked && node.IsAvailable;
-                unlockButton.interactable = canUnlock;
+                unlockButton.interactable = false;
+                return;
+            }
+
+            var st = techSystem.GetState(node.Data.id);
+
+            // ★ 改：按钮语义从“解锁”变成“讨论”
+            // 你也可以改按钮文本（如果按钮里有 TMP_Text）
+            bool canDiscuss = techSystem.CanDiscuss(node.Data);
+
+            unlockButton.interactable = canDiscuss;
+
+            // 可选：动态设置按钮文案
+            var btnText = unlockButton.GetComponentInChildren<TMP_Text>();
+            if (btnText != null)
+            {
+                if (st == TechState.Unlocked) btnText.text = "已解锁";
+                else if (st == TechState.Rejected) btnText.text = "已否决";
+                else if (!techSystem.PrerequisitesMet(node.Data)) btnText.text = "前置不足";
+                else if (st == TechState.Discussing) btnText.text = "讨论中";
+                else btnText.text = "与苏拉米斯讨论";
             }
         }
 
@@ -194,19 +231,28 @@ namespace ProjectSulamith.TechTree
 
         private void OnUnlockButtonClicked()
         {
-            if (_currentSelected == null || _currentSelected.Data == null)
-                return;
+            if (_currentSelected == null || _currentSelected.Data == null) return;
+            if (techSystem == null) return;
 
-            var data = _currentSelected.Data;
-            if (_unlockedIds.Contains(data.id)) return;
+            // ★ 改：点击详情按钮 -> 发起讨论
+            techSystem.StartDiscussion(_currentSelected.Data);
 
-            // 这里先不接入真正资源系统，先假装解锁成功
-            _unlockedIds.Add(data.id);
-
+            // 立刻刷新一次，让“Discussing”状态映射到 UI（即使还没收到 OnStateChanged）
             RefreshAllNodeStates();
             UpdateDetailPanel(_currentSelected);
+        }
 
-            // 之后可以在这里发送事件给资源系统/剧情系统
+        // ===== TechSystem 状态回调 =====
+
+        private void HandleTechStateChanged(string techId, TechState newState)
+        {
+            // 你可以更精细：只刷新一个节点
+            // 但 v1 直接全刷，简单稳
+            RefreshAllNodeStates();
+
+            // 若当前选中节点就是该科技，则刷新详情面板按钮状态/文案
+            if (_currentSelected != null && _currentSelected.Data != null && _currentSelected.Data.id == techId)
+                UpdateDetailPanel(_currentSelected);
         }
     }
 }
