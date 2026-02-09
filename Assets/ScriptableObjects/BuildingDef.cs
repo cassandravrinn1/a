@@ -9,6 +9,8 @@ public class BuildingDef : ScriptableObject
     public int costFood;
     public int costMat;
     public int costEnergy;
+    public int maxAssignable;
+    public float efficiencyPerPerson;  // 每人效率倍率
     [Header("Build time in GAME seconds")]
     public float buildTimeGameSeconds = 30f;
     [Header("On complete (optional)")]

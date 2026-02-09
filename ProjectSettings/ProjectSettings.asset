@@ -1,10 +1,11 @@
+<<<<<<< HEAD
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!129 &1
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 26
-  productGUID: d57d96c8f35181f4b8cbc2cf84a1978e
+  productGUID: c35e306563619714795c8fbb6d936ecd
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +14,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: ProjectSulamith
+  productName: Unity_Project_Sulamith
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.12156863, g: 0.12156863, b: 0.1254902, a: 1}
@@ -588,14 +589,14 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: ProjectSulamith
+  metroPackageName: Unity_Project_Sulamith
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: ProjectSulamith
+  metroApplicationDescription: Unity_Project_Sulamith
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -675,3 +676,6 @@ PlayerSettings:
   platformRequiresReadableAssets: 0
   virtualTexturingSupportEnabled: 0
   insecureHttpOption: 0
+version https://git-lfs.github.com/spec/v1
+oid sha256:4126843853f76837f7f246e19e79b3575384dbf0ea714349c91bf024cfa23f77
+size 20023

@@ -8,6 +8,7 @@
  *   并通过 EventBus 向外部模块广播时间相关事件。
  */
 
+using ProjectSulamith.Systems;
 using System;
 using UnityEngine;
 
@@ -61,7 +62,9 @@ namespace ProjectSulamith.Core
         private float _transitionTimer = 0f;    
         private float _lastBroadcastSpeed = -1f; // 节流
 
-        
+        private PopulationSystem _populationSystem;
+        private ResourceSystem _resourceSystem;
+
         [Header("Calendar (Derived from GameTimeMinutes)")]
         [SerializeField] private int startDay = 0;              
         [SerializeField] private float startDayTimeHour = 0f;
@@ -139,6 +142,12 @@ namespace ProjectSulamith.Core
                 CustomMultiplier = customSpeedMultiplier,
                 Mode = CurrentMode
             });
+            // 查找并初始化所有模拟系统
+            _populationSystem = FindObjectOfType<PopulationSystem>(true);
+            _resourceSystem = FindObjectOfType<ResourceSystem>(true);
+
+            _populationSystem?.Initialize();
+            _resourceSystem?.Initialize();
         }
 
         private void OnDestroy()
@@ -193,9 +202,12 @@ namespace ProjectSulamith.Core
                     DeltaMinutes = (float)deltaGameMinutes,
                     TotalMinutes = GameTimeMinutes
                 });
-
+                // 驱动所有模拟系统的逻辑更新
+                _populationSystem?.Tick((float)deltaGameMinutes);
+                _resourceSystem?.Tick((float)deltaGameMinutes);
                 RecomputeCalendarAndBroadcastIfNeeded(force: false);
             }
+
         }
 
         #endregion
