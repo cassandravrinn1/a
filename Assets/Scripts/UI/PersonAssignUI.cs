@@ -1,37 +1,39 @@
-using ProjectSulamith.Core;
+ï»¿using ProjectSulamith.Core;
 using ProjectSulamith.Systems;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// ½¨ÖşÅÉÇ²UI£ºµã»÷½¨Öşµ¯³ö£¬Ö§³ÖÔö¼õ/ÊäÈëÈËÊı£¬ÊÊÅäUGUI
+/// å»ºç­‘æ´¾é£UIï¼šç‚¹å‡»å»ºç­‘å¼¹å‡ºï¼Œæ”¯æŒå¢å‡/è¾“å…¥äººæ•°ï¼Œé€‚é…UGUI
 /// </summary>
 public class BuildingAssignUI : MonoBehaviour
 {
 
-    // ¼ÇÂ¼Ã¿¸ö½¨ÖşÒÑÅÉÇ²µÄ×ÜÈËÊı
+    // è®°å½•æ¯ä¸ªå»ºç­‘å·²æ´¾é£çš„æ€»äººæ•°
     private Dictionary<string, int> _buildingAssignedCount = new Dictionary<string, int>();
 
-    [Header("UI×é¼ş°ó¶¨")]
-    [SerializeField] private TMP_Text _selectedBuildingText;    // µ±Ç°Ñ¡ÖĞ½¨ÖşIDÎÄ±¾
-    [SerializeField] private TMP_Text _currentCountText; // ÏÔÊ¾µ±Ç°ÈËÊı
-    [SerializeField] private Button _addButton;            // ÈËÊı+1°´Å¥
-    [SerializeField] private Button _minusButton;          // ÈËÊı-1°´Å¥
-    [SerializeField] private Button _confirmButton;        // È·ÈÏÅÉÇ²°´Å¥
-    [SerializeField] private Button _withdrawButton;       // ³·»ØÅÉÇ²°´Å¥
-    [SerializeField] private Button _closeButton;          // ¹Ø±ÕÃæ°å°´Å¥
-    [SerializeField] private TMP_Text _tipText;                // ÌáÊ¾ÎÄ±¾
+    [Header("UIç»„ä»¶ç»‘å®š")]
+    [SerializeField] private TMP_Text _selectedBuildingText;    // å½“å‰é€‰ä¸­å»ºç­‘IDæ–‡æœ¬
+    [SerializeField] private TMP_Text _currentCountText; // æ˜¾ç¤ºå½“å‰äººæ•°
+    [SerializeField] private Button _addButton;            // äººæ•°+1æŒ‰é’®
+    [SerializeField] private Button _minusButton;          // äººæ•°-1æŒ‰é’®
+    [SerializeField] private Button _confirmButton;        // ç¡®è®¤æ´¾é£æŒ‰é’®
+    [SerializeField] private Button _withdrawButton;       // æ’¤å›æ´¾é£æŒ‰é’®
+    [SerializeField] private Button _closeButton;          // å…³é—­é¢æ¿æŒ‰é’®
+    [SerializeField] private TMP_Text _tipText;                // æç¤ºæ–‡æœ¬
 
-    [Header("ÅäÖÃ")]
-    [SerializeField] private int _minCount = 0;            // ×îĞ¡ÅÉÇ²ÈËÊı
-    [SerializeField] private int _defaultBuildingMax = 3;  // ½¨ÖşÉÏÏŞ¶µµ×Öµ£¨·ÀÖ¹Îª0£©
-    private string _currentBuildingId;                     // µ±Ç°Ñ¡ÖĞµÄ½¨ÖşID
-    private int _maxAssignCount;                           // ×î´ó¿ÉÅÉÇ²ÈËÊı£¨À´×ÔÈË¿ÚÏµÍ³£©
-    private PersonAssignSystem _assignSystem;              // ÅÉÇ²ÏµÍ³ÒıÓÃ
-    private PopulationSystem _populationSystem;            // ÈË¿ÚÏµÍ³ÒıÓÃ
+    [Header("é…ç½®")]
+    [SerializeField] private int _minCount = 0;            // æœ€å°æ´¾é£äººæ•°
+    [SerializeField] private int _defaultBuildingMax = 3;  // å»ºç­‘ä¸Šé™å…œåº•å€¼ï¼ˆé˜²æ­¢ä¸º0ï¼‰
+    private string _currentBuildingInstanceId;
+    private int _maxAssignCount;                           // æœ€å¤§å¯æ´¾é£äººæ•°ï¼ˆæ¥è‡ªäººå£ç³»ç»Ÿï¼‰
+    private PersonAssignSystem _assignSystem;              // æ´¾é£ç³»ç»Ÿå¼•ç”¨
+    private PopulationSystem _populationSystem;            // äººå£ç³»ç»Ÿå¼•ç”¨
+    private ResourceSystem _resourceSystem;
     public static BuildingAssignUI Instance;
     private void Awake()
     {
@@ -39,129 +41,150 @@ public class BuildingAssignUI : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
-        // ³õÊ¼Òş²ØÃæ°å
+        // åˆå§‹éšè—é¢æ¿
         HidePanel();
     }
 
     /// <summary>
-    /// Íâ²¿µ÷ÓÃ£ºµã»÷½¨Öşºó´ò¿ªÅÉÇ²Ãæ°å£¨´«Èë½¨ÖşID£©
+    /// å¤–éƒ¨è°ƒç”¨ï¼šç‚¹å‡»å»ºç­‘åæ‰“å¼€æ´¾é£é¢æ¿ï¼ˆä¼ å…¥å»ºç­‘IDï¼‰
     /// </summary>
-    /// <param name="buildingId">Ñ¡ÖĞµÄ½¨ÖşÔ­ĞÍID</param>
-    public void ShowPanel(string buildingId)
+    /// <param name="buildingInstanceId">é€‰ä¸­çš„å»ºç­‘å®ä¾‹ID</param>
+    public void ShowPanel(string buildingInstanceId)
     {
-        Debug.Log($"¡¾Ç¿ÖÆÈÕÖ¾¡¿ShowPanel ±»µ÷ÓÃ£¬buildingId: {buildingId}");
+        Debug.Log($"ã€å¼ºåˆ¶æ—¥å¿—ã€‘ShowPanel è¢«è°ƒç”¨ï¼Œå®ä¾‹ID: {buildingInstanceId}");
+        // 1. å¼ºåˆ¶æ¿€æ´»é¢æ¿+æ¸…ç©ºæ—§æ•°æ®
+        gameObject.SetActive(true);
+        Debug.Log(gameObject.activeSelf);
+        _currentBuildingInstanceId = string.Empty;
+        _maxAssignCount = _defaultBuildingMax;
+        SetTip("", Color.black);
 
+        // 2. æŸ¥æ‰¾ç³»ç»Ÿï¼ˆåŠ å®¹é”™ï¼‰
         _assignSystem = FindObjectOfType<PersonAssignSystem>(true);
         _populationSystem = FindObjectOfType<PopulationSystem>(true);
+        _resourceSystem = FindObjectOfType<ResourceSystem>(true);
 
-        // Ğ£ÑéÏµÍ³
-        if (_assignSystem == null || _populationSystem == null)
+        // 3. ç»‘å®šæŒ‰é’®ï¼ˆå¿…æ‰§è¡Œï¼‰
+        BindButtonEvents();
+        EnableAllButtons();
+
+        // 4. å®ä¾‹IDæ ¡éªŒ+å¼ºåˆ¶èµ‹å€¼ï¼ˆæ ¸å¿ƒä¿®å¤ï¼šæ— IDç›´æ¥å…œåº•ï¼Œæœ‰IDå¿…èµ‹å€¼ï¼‰
+        if (string.IsNullOrEmpty(buildingInstanceId))
         {
-            SetTip(" ºËĞÄÏµÍ³Î´³õÊ¼»¯£¡", Color.red);
-            DisableAllButtons();
+            SetTip("å»ºç­‘å®ä¾‹IDæ— æ•ˆï¼", Color.red);
+            UpdateUIDisplay("æœªçŸ¥å»ºç­‘", "æ— ID", 0);
+            return;
         }
+        // å¼ºåˆ¶èµ‹å€¼å®ä¾‹IDï¼Œè§£å†³â€œæœªé€‰ä¸­ä»»ä½•å»ºç­‘â€
+        _currentBuildingInstanceId = buildingInstanceId;
+
+        // 5. è§£æç±»å‹ID+å…œåº•
+        string prototypeId = GetPrototypeIdFromInstanceId(buildingInstanceId);
+        if (string.IsNullOrEmpty(prototypeId)) prototypeId = "æœªçŸ¥å»ºç­‘";
+
+        // 6. è¯»å–å»ºç­‘ä¸Šé™+å…œåº•ï¼ˆå…¼å®¹ResourceSystemä¸ºç©ºï¼‰
+        int buildingMaxAssign = _defaultBuildingMax;
+        if (_resourceSystem != null && _resourceSystem.BuildingDefMap != null && _resourceSystem.BuildingDefMap.TryGetValue(prototypeId, out BuildingDef def))
+        {
+            buildingMaxAssign = def.maxAssignable;
+            Debug.Log($" æˆåŠŸè¯»å– {prototypeId} ä¸Šé™ï¼š{buildingMaxAssign}");
+        }
+        _maxAssignCount = buildingMaxAssign;
+
+        // 7. è¯»å–å·²æ´¾é£äººæ•°+å…œåº•
+        int alreadyAssigned = _buildingAssignedCount.TryGetValue(_currentBuildingInstanceId, out int count) ? count : 0;
+
+        // 8. äººå£ä¸Šé™æ ¡éªŒï¼ˆå…¼å®¹PopulationSystemä¸ºç©ºï¼‰
+        int populationMax = _populationSystem != null ? _populationSystem.GetAssignablePopulation() : int.MaxValue;
+        _maxAssignCount = Mathf.Min(_maxAssignCount, alreadyAssigned + populationMax);
+        _maxAssignCount = Mathf.Max(_maxAssignCount, _minCount);
+
+        // 9. å¼ºåˆ¶æ›´æ–°UIï¼ˆå¿…æ‰§è¡Œï¼Œè§£å†³ä¸æ˜¾ç¤ºé—®é¢˜ï¼‰
+        UpdateUIDisplay(prototypeId, buildingInstanceId, alreadyAssigned);
+        UpdateButtonStates();
+
+        Debug.Log($"é¢æ¿çŠ¶æ€ï¼š{gameObject.activeSelf} | å®ä¾‹IDï¼š{_currentBuildingInstanceId} | ä¸Šé™ï¼š{_maxAssignCount} | å·²æ´¾ï¼š{alreadyAssigned}");
+    }
+    #region å†…éƒ¨è¾…åŠ©æ–¹æ³•
+    /// <summary>
+    /// ç»‘å®šæ‰€æœ‰æŒ‰é’®äº‹ä»¶ï¼ˆæŠ½ç¦»æˆæ–¹æ³•ï¼Œç®€åŒ–ä»£ç ï¼‰
+    /// </summary>
+    private void BindButtonEvents()
+    {
         if (_addButton != null)
         {
             _addButton.onClick.RemoveAllListeners();
             _addButton.onClick.AddListener(OnAddCount);
-            Debug.Log("+ °´Å¥°ó¶¨³É¹¦£¡");
+            Debug.Log("+ æŒ‰é’®ç»‘å®šæˆåŠŸï¼");
         }
         if (_minusButton != null)
         {
             _minusButton.onClick.RemoveAllListeners();
             _minusButton.onClick.AddListener(OnMinusCount);
-            Debug.Log("- °´Å¥°ó¶¨³É¹¦£¡");
+            Debug.Log("- æŒ‰é’®ç»‘å®šæˆåŠŸï¼");
         }
         if (_confirmButton != null)
         {
             _confirmButton.onClick.RemoveAllListeners();
             _confirmButton.onClick.AddListener(OnConfirmAssign);
-            Debug.Log("È·ÈÏ°´Å¥°ó¶¨³É¹¦£¡");
+            Debug.Log("ç¡®è®¤æŒ‰é’®ç»‘å®šæˆåŠŸï¼");
         }
         if (_withdrawButton != null)
         {
             _withdrawButton.onClick.RemoveAllListeners();
-            _withdrawButton.onClick.AddListener(HidePanel); // Ö±½Ó°ó¶¨¹Ø±ÕÃæ°å
-            Debug.Log("³·»Ø°´Å¥°ó¶¨³É¹¦£¡");
+            _withdrawButton.onClick.AddListener(HidePanel);
+            Debug.Log("æ’¤å›æŒ‰é’®ç»‘å®šæˆåŠŸï¼");
         }
         if (_closeButton != null)
         {
             _closeButton.onClick.RemoveAllListeners();
             _closeButton.onClick.AddListener(HidePanel);
-            Debug.Log("¹Ø±Õ°´Å¥°ó¶¨³É¹¦£¡");
+            Debug.Log("å…³é—­æŒ‰é’®ç»‘å®šæˆåŠŸï¼");
         }
-        // Ç¿ÖÆÏÔÊ¾Ãæ°å
-        gameObject.SetActive(true);
-        Canvas canvas = GetComponentInParent<Canvas>();
-        if (canvas != null) { canvas.enabled = false; canvas.enabled = true; }
-
-        // ´òÓ¡×´Ì¬
-        Debug.Log($"Ãæ°å¼¤»î×´Ì¬£º{gameObject.activeSelf}");
-
-        if (string.IsNullOrEmpty(buildingId))
-        {
-            SetTip("½¨ÖşIDÎŞĞ§£¡", Color.red);
-            Debug.LogWarning("[BuildingAssignUI] ´«ÈëµÄ½¨ÖşIDÎª¿Õ£¡");
-            return;
-        }
-
-        int buildingMaxAssign = _defaultBuildingMax; // Ä¬ÈÏ¶µµ×
-        var resourceSys = FindObjectOfType<ResourceSystem>(true);
-
-        if (resourceSys != null && resourceSys.BuildingDefMap != null)
-        {
-            if (resourceSys.BuildingDefMap.TryGetValue(buildingId, out BuildingDef def))
-            {
-                //  ÕæÕı´Ó½¨ÖşÅäÖÃÀïÄÃÉÏÏŞ
-                buildingMaxAssign = def.maxAssignable;
-                Debug.Log($" ³É¹¦¶ÁÈ¡ {buildingId} ÉÏÏŞ£º{buildingMaxAssign}");
-            }
-            else
-            {
-                Debug.LogWarning($" BuildingDefMap ÖĞÕÒ²»µ½ {buildingId}£¬Ê¹ÓÃÄ¬ÈÏÉÏÏŞ {_defaultBuildingMax}");
-            }
-        }
-        else
-        {
-            Debug.LogError($" ResourceSystem »ò BuildingDefMap Î´³õÊ¼»¯£¡");
-        }
-
-        //  ÉèÖÃµ±Ç°½¨ÖşµÄ×î´ó¿ÉÅÉÇ²ÈËÊı
-        _currentBuildingId = buildingId;
-        _maxAssignCount = buildingMaxAssign;
-
-        // Í¬Ê±²»ÄÜ³¬¹ıÈË¿ÚÏµÍ³ÔÊĞíµÄ×ÜÁ¿
-        int populationMax = _populationSystem?.GetAssignablePopulation() ?? 0;
-        int maxPossible = _buildingAssignedCount.TryGetValue(_currentBuildingId, out int already) ? already + populationMax : populationMax;
-        _maxAssignCount = Mathf.Min(_maxAssignCount, maxPossible);
-
-        _maxAssignCount = Mathf.Max(_maxAssignCount, _minCount);
-
-        // ¸üĞÂUIÏÔÊ¾
-        if (_selectedBuildingText != null) _selectedBuildingText.text = $"µ±Ç°½¨Öş£º{buildingId}";
-        int currentAssigned = _buildingAssignedCount.TryGetValue(_currentBuildingId, out int count) ? count : 0;
-        if (_currentCountText != null) _currentCountText.text = currentAssigned.ToString();
-        SetTip($"¿ÉÅÉÇ²ÈËÊıÉÏÏŞ£º{_maxAssignCount}", Color.black);
-        // ¼¤»îÃæ°å+¸üĞÂ°´Å¥×´Ì¬
-        gameObject.SetActive(true);
-        EnableAllButtons();
-        UpdateButtonStates(); // ³õÊ¼»¯°´Å¥×´Ì¬
     }
 
     /// <summary>
-    /// Òş²ØÅÉÇ²Ãæ°å
+    /// ä»å®ä¾‹IDè§£æç±»å‹IDï¼ˆå¦‚ï¼šBattery_0_1 â†’ Batteryï¼‰
+    /// </summary>
+    private string GetPrototypeIdFromInstanceId(string instanceId)
+    {
+        if (string.IsNullOrEmpty(instanceId)) return "";
+
+        // æŒ‰ä¸‹åˆ’çº¿åˆ†å‰²ï¼Œå–ç¬¬ä¸€ä¸ªéƒ¨åˆ†ï¼ˆå®ä¾‹IDæ ¼å¼ï¼šåŸå‹å_x_yï¼‰
+        string[] parts = instanceId.Split('_');
+        return parts.Length > 0 ? parts[0] : "";
+    }
+
+    /// <summary>
+    /// æ›´æ–°UIæ˜¾ç¤ºå†…å®¹
+    /// </summary>
+    private void UpdateUIDisplay(string prototypeId, string instanceId, int currentAssigned)
+    {
+        if (_selectedBuildingText != null)
+            _selectedBuildingText.text = $"å½“å‰å»ºç­‘ï¼š{prototypeId}"; // æ˜¾ç¤ºç±»å‹
+        if (_currentCountText != null)
+            _currentCountText.text = currentAssigned.ToString();
+        SetTip($"å¯æ´¾é£äººæ•°ä¸Šé™ï¼š{_maxAssignCount}", Color.black);
+    }
+    #endregion
+    /// <summary>
+    /// éšè—æ´¾é£é¢æ¿
     /// </summary>
     public void HidePanel()
     {
+        // å…³é—­é¢æ¿
         gameObject.SetActive(false);
-        _currentBuildingId = string.Empty; // Çå¿ÕÑ¡ÖĞ½¨Öş
-        _currentCountText.text = _minCount.ToString();
+
+        // æ¸…ç©ºçŠ¶æ€
+        _currentBuildingInstanceId = string.Empty;
+        if (_currentCountText != null)
+            _currentCountText.text = _minCount.ToString();
         SetTip("", Color.black);
     }
 
-    #region °´Å¥µã»÷Âß¼­
+    #region æŒ‰é’®ç‚¹å‡»é€»è¾‘
     /// <summary>
-    /// ÈËÊı+1
+    /// äººæ•°+1
     /// </summary>
     private void OnAddCount()
     {
@@ -169,15 +192,15 @@ public class BuildingAssignUI : MonoBehaviour
         {
             currentCount = _minCount;
         }
-        currentCount = Mathf.Min(currentCount + 1, _maxAssignCount); // ²»³¬¹ıÉÏÏŞ
+        currentCount = Mathf.Min(currentCount + 1, _maxAssignCount); // ä¸è¶…è¿‡ä¸Šé™
         _currentCountText.text = currentCount.ToString();
-        Debug.Log($"µ±Ç°ÈËÊı£º{currentCount}, ÎÄ±¾ÏÔÊ¾£º{_currentCountText.text}");
+        Debug.Log($"å½“å‰äººæ•°ï¼š{currentCount}, æ–‡æœ¬æ˜¾ç¤ºï¼š{_currentCountText.text}");
 
-        UpdateButtonStates(); // ¸üĞÂ°´Å¥×´Ì¬
+        UpdateButtonStates(); // æ›´æ–°æŒ‰é’®çŠ¶æ€
     }
 
     /// <summary>
-    /// ÈËÊı-1
+    /// äººæ•°-1
     /// </summary>
     private void OnMinusCount()
     {
@@ -185,79 +208,77 @@ public class BuildingAssignUI : MonoBehaviour
         {
             currentCount = _minCount;
         }
-        currentCount = Mathf.Max(currentCount - 1, _minCount); // ²»µÍÓÚÏÂÏŞ
+        currentCount = Mathf.Max(currentCount - 1, _minCount); // ä¸ä½äºä¸‹é™
         _currentCountText.text = currentCount.ToString();
-        Debug.Log($"µ±Ç°ÈËÊı£º{currentCount}, ÎÄ±¾ÏÔÊ¾£º{_currentCountText.text}");
+        Debug.Log($"å½“å‰äººæ•°ï¼š{currentCount}, æ–‡æœ¬æ˜¾ç¤ºï¼š{_currentCountText.text}");
 
-        UpdateButtonStates(); // ¸üĞÂ°´Å¥×´Ì¬
+        UpdateButtonStates(); // æ›´æ–°æŒ‰é’®çŠ¶æ€
     }
     /// <summary>
-    /// È·ÈÏÅÉÇ²£ºÖ±½ÓÉèÖÃÎªµ±Ç°ÏÔÊ¾µÄ×ÜÈËÊı
+    /// ç¡®è®¤æ´¾é£ï¼šç›´æ¥è®¾ç½®ä¸ºå½“å‰æ˜¾ç¤ºçš„æ€»äººæ•°
     /// </summary>
     private void OnConfirmAssign()
     {
-        // Ğ£ÑéÑ¡ÖĞ½¨Öş
-        if (string.IsNullOrEmpty(_currentBuildingId))
+        // æ ¡éªŒé€‰ä¸­çš„å®ä¾‹ID
+        if (string.IsNullOrEmpty(_currentBuildingInstanceId))
         {
-            SetTip("? Î´Ñ¡ÖĞÈÎºÎ½¨Öş£¡", Color.red);
+            SetTip(" æœªé€‰ä¸­ä»»ä½•å»ºç­‘ï¼", Color.red);
             return;
         }
 
-        // Ğ£ÑéÊäÈëÈËÊı£¨×îÖÕ×ÜÈËÊı£©
+        // æ ¡éªŒè¾“å…¥äººæ•°
         if (!int.TryParse(_currentCountText.text, out int targetTotalCount) ||
             targetTotalCount < _minCount || targetTotalCount > _maxAssignCount)
         {
-            SetTip($" ÈËÊıĞèÔÚ{_minCount}-{_maxAssignCount}Ö®¼ä£¡", Color.red);
+            SetTip($"äººæ•°éœ€åœ¨{_minCount}-{_maxAssignCount}ä¹‹é—´ï¼", Color.red);
             return;
         }
 
-        // »ñÈ¡¸Ã½¨Öşµ±Ç°ÒÑÅÉÇ²µÄ×ÜÈËÊı
-        int currentTotal = _buildingAssignedCount.TryGetValue(_currentBuildingId, out int count) ? count : 0;
-
-        // ¼ÆËãĞèÒªÅÉÇ²/³·»ØµÄ²îÖµ
+        //  å…³é”®ï¼šæŒ‰å®ä¾‹IDè·å–å·²æ´¾é£äººæ•°
+        int currentTotal = _buildingAssignedCount.TryGetValue(_currentBuildingInstanceId, out int count) ? count : 0;
         int delta = targetTotalCount - currentTotal;
 
         bool success = false;
         if (delta > 0)
         {
-            // ÅÉÇ²£ºÔö¼Ó delta ÈË
-            var result = _assignSystem.AssignPersonToBuilding(_currentBuildingId, delta);
+            // æ´¾é£ï¼šå¢åŠ  delta äººï¼ˆä¼ å…¥å®ä¾‹IDï¼Œä¿è¯ç‹¬ç«‹ï¼‰
+            var result = _assignSystem.AssignPersonToBuilding(_currentBuildingInstanceId, delta);
             success = result.Ok;
             if (success)
             {
-                _buildingAssignedCount[_currentBuildingId] = targetTotalCount;
-                SetTip($" ÅÉÇ²³É¹¦£¡\n×ÜÈËÊı£º{targetTotalCount}", Color.green);
+                _buildingAssignedCount[_currentBuildingInstanceId] = targetTotalCount;
+                SetTip($"æ´¾é£æˆåŠŸï¼\næ€»äººæ•°ï¼š{targetTotalCount}", Color.green);
             }
             else
             {
-                SetTip($" ÅÉÇ²Ê§°Ü£¡\n×î´ó¿ÉÅÉÇ²£º{result.MaxTotalPerson}", Color.red);
+                SetTip($" æ´¾é£å¤±è´¥ï¼\næœ€å¤§å¯æ´¾é£ï¼š{result.MaxTotalPerson}", Color.red);
             }
         }
         else if (delta < 0)
         {
-            // ³·»Ø£º¼õÉÙ |delta| ÈË
+            // æ’¤å›ï¼šå‡å°‘ |delta| äºº
             int withdrawCount = -delta;
-            success = _assignSystem.WithdrawPersonFromBuilding(_currentBuildingId, withdrawCount);
+            success = _assignSystem.WithdrawPersonFromBuilding(_currentBuildingInstanceId, withdrawCount);
             if (success)
             {
-                _buildingAssignedCount[_currentBuildingId] = targetTotalCount;
-                SetTip($" ³·»Ø³É¹¦£¡\n×ÜÈËÊı£º{targetTotalCount}", Color.green);
+                _buildingAssignedCount[_currentBuildingInstanceId] = targetTotalCount;
+                SetTip($" æ’¤å›æˆåŠŸï¼\næ€»äººæ•°ï¼š{targetTotalCount}", Color.green);
             }
             else
             {
-                SetTip($" ³·»ØÊ§°Ü£¡", Color.red);
+                SetTip($" æ’¤å›å¤±è´¥ï¼", Color.red);
             }
         }
         else
         {
-            // ÈËÊıÎ´±ä»¯
-            SetTip(" ÈËÊıÎ´±ä»¯£¬ÎŞĞè²Ù×÷", Color.yellow);
+            // äººæ•°æœªå˜åŒ–
+            SetTip(" äººæ•°æœªå˜åŒ–ï¼Œæ— éœ€æ“ä½œ", Color.yellow);
             success = true;
         }
 
         if (success)
         {
-            // ¹Ø±ÕÃæ°å£¨¿ÉÑ¡£¬¿´ÄãĞèÇó£©
+            // å¯é€‰ï¼šå…³é—­é¢æ¿
             // HidePanel();
         }
 
@@ -265,9 +286,9 @@ public class BuildingAssignUI : MonoBehaviour
     }
     #endregion
 
-    #region ¸¨Öú·½·¨
+    #region è¾…åŠ©æ–¹æ³•
     /// <summary>
-    /// ÉèÖÃÌáÊ¾ÎÄ±¾
+    /// è®¾ç½®æç¤ºæ–‡æœ¬
     /// </summary>
     private void SetTip(string text, Color color)
     {
@@ -279,7 +300,7 @@ public class BuildingAssignUI : MonoBehaviour
     }
 
     /// <summary>
-    /// ÆôÓÃËùÓĞ°´Å¥
+    /// å¯ç”¨æ‰€æœ‰æŒ‰é’®
     /// </summary>
     private void EnableAllButtons()
     {
@@ -290,7 +311,7 @@ public class BuildingAssignUI : MonoBehaviour
     }
 
     /// <summary>
-    /// ½ûÓÃËùÓĞ°´Å¥
+    /// ç¦ç”¨æ‰€æœ‰æŒ‰é’®
     /// </summary>
     private void DisableAllButtons()
     {
@@ -300,7 +321,7 @@ public class BuildingAssignUI : MonoBehaviour
         if (_withdrawButton != null) _withdrawButton.interactable = false;
     }
     /// <summary>
-    /// ¶¯Ì¬¸üĞÂ°´Å¥×´Ì¬£¨ºËĞÄÓÅ»¯£º¸ù¾İµ±Ç°ÈËÊı½ûÓÃ/ÆôÓÃÔö¼õ°´Å¥£©
+    /// åŠ¨æ€æ›´æ–°æŒ‰é’®çŠ¶æ€ï¼ˆæ ¸å¿ƒä¼˜åŒ–ï¼šæ ¹æ®å½“å‰äººæ•°ç¦ç”¨/å¯ç”¨å¢å‡æŒ‰é’®ï¼‰
     /// </summary>
     private void UpdateButtonStates()
     {
@@ -309,41 +330,57 @@ public class BuildingAssignUI : MonoBehaviour
             currentCount = _minCount;
         }
 
-        // +1°´Å¥£ºµ±Ç°ÈËÊı¡İÉÏÏŞÊ±½ûÓÃ
+        // +1æŒ‰é’®ï¼šå½“å‰äººæ•°â‰¥ä¸Šé™æ—¶ç¦ç”¨
         if (_addButton != null) _addButton.interactable = currentCount < _maxAssignCount;
-        // -1°´Å¥£ºµ±Ç°ÈËÊı¡ÜÏÂÏŞÊÇ½ûÓÃ
+        // -1æŒ‰é’®ï¼šå½“å‰äººæ•°â‰¤ä¸‹é™æ˜¯ç¦ç”¨
         if (_minusButton != null) _minusButton.interactable = currentCount > _minCount;
     }
-   
-    #endregion
 
+    #endregion
+    /*
     /// <summary>
-    /// µã»÷¿Õ°×´¦¹Ø±ÕÃæ°å
+    /// ç‚¹å‡»ç©ºç™½å¤„å…³é—­é¢æ¿
     /// </summary>
     private void Update()
     {
-        // Ãæ°åÃ»¼¤»î¾Í²»¼ì²â
+        // é¢æ¿æ²¡æ¿€æ´» â†’ ç›´æ¥è¿”å›ï¼Œä¸æ‰§è¡Œä»»ä½•æ£€æµ‹ï¼ˆå…³é”®ï¼šé¿å…å…¨å±€æ‹¦æˆªï¼‰
         if (!gameObject.activeSelf) return;
 
-        // Ö»ÔÚÊó±ê°´ÏÂÊ±¼ì²âÒ»´Î
+        // åªåœ¨é¼ æ ‡å·¦é”®æŒ‰ä¸‹æ—¶æ£€æµ‹
         if (Input.GetMouseButtonDown(0))
         {
-            // ÅĞ¶ÏÊÇ·ñµãÔÚÃæ°åÄÚ²¿
-            bool isInside = RectTransformUtility.RectangleContainsScreenPoint(
-                GetComponent<RectTransform>(),
-                Input.mousePosition,
-                GetComponentInParent<Canvas>().worldCamera);
-
-            // Ö»ÓĞµãÔÚÍâÃæ²Å¹Ø±Õ
-            if (!isInside)
+            // å…ˆåˆ¤æ–­æ˜¯å¦ç‚¹å‡»äº†UIï¼ˆå¦‚æœç‚¹äº†UIï¼Œä¸å¤„ç†ï¼‰
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
+                return;
+            }
+
+            // å®¹é”™ï¼šRectTransform/Canvasä¸ºç©ºæ—¶ï¼Œç›´æ¥å…³é—­é¢æ¿
+            RectTransform rt = GetComponent<RectTransform>();
+            Canvas parentCanvas = GetComponentInParent<Canvas>();
+            if (rt == null || parentCanvas == null)
+            {
+                HidePanel();
+                return;
+            }
+
+            // åˆ¤æ–­æ˜¯å¦ç‚¹åœ¨é¢æ¿å†…éƒ¨
+            bool isInside = RectTransformUtility.RectangleContainsScreenPoint(
+                rt,
+                Input.mousePosition,
+                parentCanvas.worldCamera);
+
+            // åªæœ‰ç‚¹åœ¨å¤–é¢æ‰å…³é—­
+            if (gameObject.activeSelf&&!isInside)
+            {
+                Debug.Log("ç‚¹å‡»ä½ç½®åœ¨é¢æ¿å¤–");
                 HidePanel();
             }
         }
     }
-
+    */
     /// <summary>
-    /// ·ÀÖ¹ÄÚ´æĞ¹Â©£ºÒÆ³ıÊÂ¼ş¼àÌı
+    /// é˜²æ­¢å†…å­˜æ³„æ¼ï¼šç§»é™¤äº‹ä»¶ç›‘å¬
     /// </summary>
     private void OnDestroy()
     {

@@ -1,60 +1,69 @@
 using UnityEngine;
 using ProjectSulamith.Systems;
 
-// 挂载到所有建筑预制体上（Warehouse/Battery/Canteen）
 public class BuildingClickTrigger : MonoBehaviour
 {
-    [Tooltip("建筑对应的格子坐标（由建造系统赋值）")]
     public Vector3Int cellPosition;
-
-    [Tooltip("建筑原型ID（Warehouse/Battery/Canteen）")]
     public string buildingPrototypeId;
+    public string buildingInstanceId;
 
-    private HexGridData _hexGridData;
     private TestBuildPanel _buildPanel;
+    private Camera _mainCamera; // 改用2D相机
 
     void Awake()
     {
-        // 自动查找全局的HexGridData和TestBuildPanel
-        _hexGridData = FindObjectOfType<HexGridData>(true);
         _buildPanel = FindObjectOfType<TestBuildPanel>(true);
+        _mainCamera = Camera.main; // 确保主相机是2D Camera（Projection=Orthographic）
 
-        // 给建筑加碰撞体（确保能检测点击）
-        if (GetComponent<Collider>() == null)
+        // 添加2D碰撞体（适配Sprite地图）
+        if (GetComponent<Collider2D>() == null)
         {
-            Collider collider = gameObject.AddComponent<BoxCollider>();
-            (collider as BoxCollider).isTrigger = false; // 非触发器，用于射线检测
+            BoxCollider2D collider2D = gameObject.AddComponent<BoxCollider2D>();
+            collider2D.isTrigger = false;
+            collider2D.offset = Vector2.zero;
+            collider2D.size = new Vector2(1, 1); // 适配Sprite大小调整
+        }
+        gameObject.layer = LayerMask.NameToLayer("Default");
+    }
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            // 第一步：判断是否点击在UI上 → 跳过
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+                return;
+
+            // 第二步：射线检测
+            Vector2 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
+
+            if (hit.collider != null && hit.collider.gameObject == this.gameObject)
+            {
+                OnBuildingClicked();
+            }
         }
     }
 
-    // 检测鼠标点击
-    void OnMouseDown()
-    {
-        OnBuildingClicked();
-    }
-
-    // 建筑被点击后的核心逻辑
     public void OnBuildingClicked()
     {
-        if (_hexGridData == null || _buildPanel == null)
+        if (_buildPanel == null || _buildPanel.assignUI == null)
         {
-            Debug.LogWarning($"[{buildingPrototypeId}] 找不到HexGridData或TestBuildPanel！");
+            Debug.LogWarning("派遣面板未绑定！");
             return;
         }
-        Debug.Log($"尝试打开派遣面板：{buildingPrototypeId}");
-        // 1. 选中该建筑所在的格子（联动HexGridData）
-        _hexGridData.SelectCell(cellPosition);
 
-        // 2. 直接打开派遣面板（无需点击按钮）
-        var selectedTile = _hexGridData.GetSelectedTile();
-        if (selectedTile != null && selectedTile.hasBuilding && _buildPanel.assignUI != null)
-        {
-            _buildPanel.assignUI.ShowPanel(buildingPrototypeId);
-            Debug.Log($"点击建筑{buildingPrototypeId}，直接打开派遣面板");
-        }
-        else
-        {
-            Debug.LogWarning($"[{buildingPrototypeId}] 建筑格子数据异常，无法打开派遣面板");
-        }
+        // 强制激活面板（优先级最高）
+        _buildPanel.assignUI.gameObject.SetActive(true);
+        // 调用ShowPanel，传实例ID
+        _buildPanel.assignUI.ShowPanel(buildingInstanceId);
+        Debug.Log($" 射线检测成功，打开面板：{buildingInstanceId}");
+    }
+
+    // 兜底保留OnMouseDown
+    void OnMouseDown()
+    {
+        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            OnBuildingClicked();
     }
 }

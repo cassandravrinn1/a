@@ -73,6 +73,7 @@ namespace ProjectSulamith.Systems
     {
         public Vector3Int CellPosition;
         public string PrototypeId;
+        public string InstanceId;
     }
 
     // ===== 建造流程中用到的事件（保持不变，可继续使用） =====

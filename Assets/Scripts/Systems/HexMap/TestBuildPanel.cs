@@ -148,6 +148,10 @@ public class TestBuildPanel : MonoBehaviour
     // 生成建筑实例并配置点击脚本
     private void SpawnBuildingInstance(string proto, HexTileData tile)
     {
+        if (tile.cellPosition == Vector3Int.zero)
+        {
+            Debug.LogError($"[{proto}] 格子坐标为空！");
+        }
         GameObject prefab = null;
         switch (proto)
         {
@@ -166,7 +170,9 @@ public class TestBuildPanel : MonoBehaviour
         // 生成建筑实例（放在格子中心位置）
         Vector3 worldPos = hexGrid.GetCellCenterWorld(tile.cellPosition);
         GameObject buildingObj = Instantiate(prefab, worldPos, Quaternion.identity);
-        buildingObj.name = $"{proto}_{tile.cellPosition}";
+        // 生成实例唯一ID（proto + 格子坐标，保证唯一）
+        string instanceId = $"{proto}_{tile.cellPosition.x}_{tile.cellPosition.y}_{tile.cellPosition.z}";
+        buildingObj.name = instanceId;
 
         // 给建筑添加点击脚本并赋值关键参数
         BuildingClickTrigger clickTrigger = buildingObj.GetComponent<BuildingClickTrigger>();
@@ -176,9 +182,10 @@ public class TestBuildPanel : MonoBehaviour
         }
         clickTrigger.cellPosition = tile.cellPosition;
         clickTrigger.buildingPrototypeId = proto;
-
+        clickTrigger.buildingInstanceId = instanceId; // 绑定实例ID
         // 记录建筑实例到格子数据中
         tile.buildingInstance = buildingObj;
+        tile.buildingInstanceId = instanceId; // 格子数据里也存一份实例ID
     }
     private void OnBuildAccepted(BuildAccepted e)
     {

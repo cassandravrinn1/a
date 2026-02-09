@@ -1572,7 +1572,7 @@ Transform:
   m_GameObject: {fileID: 241545970}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.17164826, y: -0.7373093, z: 0.028283056}
+  m_LocalPosition: {x: -0.17164826, y: -0.7373093, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3586,7 +3586,7 @@ MonoBehaviour:
   data: {fileID: 522385616}
   view: {fileID: 522385615}
   tileInfoPanel: {fileID: 1379123627}
-  blockWhenPointerOverUI: 1
+  blockWhenPointerOverUI: 0
 --- !u!114 &522385615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13707,7 +13707,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 120
   m_TargetDisplay: 0
 --- !u!224 &1610598467
 RectTransform:
@@ -15242,7 +15242,7 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -16604,7 +16604,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -115, y: 156}
+  m_AnchoredPosition: {x: -115, y: 148}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2096114712

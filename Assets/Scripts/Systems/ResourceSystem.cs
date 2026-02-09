@@ -30,9 +30,10 @@ namespace ProjectSulamith.Systems
         private readonly System.Collections.Generic.Dictionary<string, int> _buildingCounts
             = new System.Collections.Generic.Dictionary<string, int>(System.StringComparer.Ordinal);
 
-        // 建筑ID -> 已派遣人数（核心派遣数据）
-        private readonly Dictionary<string, int> _buildingTotalAssignPersons
-            = new Dictionary<string, int>(StringComparer.Ordinal);
+        // 按实例ID存储派遣人数
+        private readonly Dictionary<string, int> _buildingInstanceAssignPersons = new Dictionary<string, int>(StringComparer.Ordinal);
+        // 实例ID → 类型ID 的映射（用于查BuildingDef）
+        private readonly Dictionary<string, string> _instanceToPrototypeMap = new Dictionary<string, string>(StringComparer.Ordinal);
 
         [Header("Consume per minute（可小数）")]
         [SerializeField] private float foodConsumePerMin = 2f;
@@ -56,18 +57,24 @@ namespace ProjectSulamith.Systems
 
         private Dictionary<string, BuildingDef> _buildingDefMap;
 
-        // 核心：每个建筑独立效率计算
-        public float GetBuildingEfficiency(string buildingId)
+        // 每个建筑实例独立效率计算（修改为按实例ID）
+        public float GetBuildingEfficiency(string instanceId)
         {
-            if (!_buildingDefMap.TryGetValue(buildingId, out BuildingDef def))
+            // 1. 先通过实例ID找类型ID
+            if (!_instanceToPrototypeMap.TryGetValue(instanceId, out string prototypeId))
                 return 1f;
 
-            int assigned = _buildingTotalAssignPersons.TryGetValue(buildingId, out int count) ? count : 0;
+            // 2. 找该类型的配置
+            if (!_buildingDefMap.TryGetValue(prototypeId, out BuildingDef def))
+                return 1f;
 
-            // 效率 = 1 + 人数 * 每人效率（组长可在BuildingDef配置）
+            // 3. 找该实例的派遣人数
+            int assigned = _buildingInstanceAssignPersons.TryGetValue(instanceId, out int count) ? count : 0;
+
+            // 效率 = 1 + 人数 * 每人效率（可在BuildingDef配置）
             float efficiency = 1f + assigned * def.efficiencyPerPerson;
 
-            // 防止效率过低或过高（可根据需求调整）
+            // 防止效率过低或过高
             efficiency = Mathf.Max(efficiency, 0.1f);
 
             return efficiency;
@@ -95,20 +102,30 @@ namespace ProjectSulamith.Systems
 
             if (buildingYieldConfig != null)
             {
-                foreach (var kv in _buildingCounts)
+                // 遍历所有建筑实例（而非建筑类型）
+                foreach (var instanceKv in _buildingInstanceAssignPersons)
                 {
-                    string buildingId = kv.Key;
-                    int count = kv.Value;
+                    string instanceId = instanceKv.Key;
+                    int assignPersons = instanceKv.Value;
 
-                    if (count <= 0) continue;
-                    if (!buildingYieldConfig.TryGet(buildingId, out var entry)) continue;
+                    // 跳过未派遣人数的实例
+                    if (assignPersons <= 0) continue;
 
-                    // 关键：每个建筑独立效率
-                    float efficiency = GetBuildingEfficiency(buildingId);
+                    // 从实例ID找类型ID
+                    if (!_instanceToPrototypeMap.TryGetValue(instanceId, out string prototypeId))
+                        continue;
 
-                    food += entry.foodPerMin * count * efficiency;
-                    mat += entry.matPerMin * count * efficiency;
-                    energy += entry.energyPerMin * count * efficiency;
+                    // 找该类型的基础产量
+                    if (!buildingYieldConfig.TryGet(prototypeId, out var entry))
+                        continue;
+
+                    // 计算该实例的效率
+                    float efficiency = GetBuildingEfficiency(instanceId);
+
+                    // 累加该实例的产量（每个实例独立计算）
+                    food += entry.foodPerMin * efficiency;
+                    mat += entry.matPerMin * efficiency;
+                    energy += entry.energyPerMin * efficiency;
                 }
             }
             // 扣除消耗
@@ -165,10 +182,22 @@ namespace ProjectSulamith.Systems
         {
             if (string.IsNullOrEmpty(e.PrototypeId)) return;
 
+            // 更新建筑类型数量
             _buildingCounts.TryGetValue(e.PrototypeId, out int c);
             _buildingCounts[e.PrototypeId] = c + 1;
 
-            // 可选：立即广播一次（让 UI 立刻看到“产出变化”——如果你 UI 有显示速率的话）
+            // 记录实例ID→类型ID映射（e.InstanceId是建筑放置时生成的唯一ID）
+            if (!string.IsNullOrEmpty(e.InstanceId))
+            {
+                _instanceToPrototypeMap[e.InstanceId] = e.PrototypeId;
+                // 初始化该实例的派遣人数为0
+                if (!_buildingInstanceAssignPersons.ContainsKey(e.InstanceId))
+                {
+                    _buildingInstanceAssignPersons[e.InstanceId] = 0;
+                }
+            }
+
+            // 可选：立即广播一次（让 UI 立刻看到“产出变化”）
             // BroadcastIfChanged(force: true);
         }
 
@@ -177,47 +206,56 @@ namespace ProjectSulamith.Systems
         {
             if (req == null) return;
 
-            // 1. 校验建筑是否存在
-            if (!_buildingCounts.ContainsKey(req.PrototypeId) || _buildingCounts[req.PrototypeId] <= 0)
+            // 1. 校验实例ID是否有效（req.PrototypeId 实际传的是实例ID，后续可改字段名）
+            string instanceId = req.PrototypeId;
+            if (string.IsNullOrEmpty(instanceId))
             {
                 PublishAssignPersonResult(req, false, 0, 0);
-                Debug.LogWarning($"建筑{req.PrototypeId}不存在，无法派遣人口");
+                Debug.LogWarning($"建筑实例ID为空，无法派遣人口");
                 return;
             }
 
-            // 2. 校验建筑最大派遣人数（解决CS0165报错：def未赋值）
-            BuildingDef def = null;
-            if (!_buildingDefMap.TryGetValue(req.PrototypeId, out def))
+            // 2. 从实例ID找类型ID
+            if (!_instanceToPrototypeMap.TryGetValue(instanceId, out string prototypeId))
             {
                 PublishAssignPersonResult(req, false, 0, 0);
-                Debug.LogWarning($" 未找到建筑{req.PrototypeId}的配置，无法派遣人口");
+                Debug.LogWarning($"未找到实例{instanceId}对应的建筑类型");
                 return;
             }
 
+            // 3. 校验建筑类型配置
+            if (!_buildingDefMap.TryGetValue(prototypeId, out BuildingDef def))
+            {
+                PublishAssignPersonResult(req, false, 0, 0);
+                Debug.LogWarning($"未找到建筑类型{prototypeId}的配置，无法派遣人口");
+                return;
+            }
+
+            // 4. 校验派遣人数不超过建筑上限
             if (req.TotalAssignPerson > def.maxAssignable)
             {
                 PublishAssignPersonResult(req, false, 0, def.maxAssignable);
-                Debug.LogWarning($"{req.PrototypeId}最大可派{def.maxAssignable}人，请求派遣{req.TotalAssignPerson}人");
+                Debug.LogWarning($"{prototypeId}最大可派{def.maxAssignable}人，请求派遣{req.TotalAssignPerson}人");
                 return;
             }
 
-            // 3. 校验全局可派遣人口（健康人口）
+            // 5. 校验全局可派遣人口（健康人口）
             var populationSys = FindObjectOfType<PopulationSystem>(true);
             int maxAssignable = populationSys?.GetAssignablePopulation() ?? 0;
             if (req.TotalAssignPerson > maxAssignable)
             {
                 PublishAssignPersonResult(req, false, 0, maxAssignable);
-                Debug.LogWarning($" 全局可派遣人口不足！当前{maxAssignable}，请求{req.TotalAssignPerson}");
+                Debug.LogWarning($"全局可派遣人口不足！当前{maxAssignable}，请求{req.TotalAssignPerson}");
                 return;
             }
 
-            // 4. 更新派遣人数
-            _buildingTotalAssignPersons[req.PrototypeId] = req.TotalAssignPerson;
+            // 6. 按实例ID更新派遣人数
+            _buildingInstanceAssignPersons[instanceId] = req.TotalAssignPerson;
             PublishAssignPersonResult(req, true, req.TotalAssignPerson, def.maxAssignable);
 
-            // 5. 立即广播产量变化
+            // 7. 立即广播产量变化
             BroadcastIfChanged(force: true);
-            Debug.Log($"{req.PrototypeId}派遣{req.TotalAssignPerson}人成功");
+            Debug.Log($"{instanceId}（类型：{prototypeId}）派遣{req.TotalAssignPerson}人成功");
         }
 
         // 发布派遣结果
@@ -226,7 +264,7 @@ namespace ProjectSulamith.Systems
             EventBus.Instance?.Publish(new BuildingAssignPersonResult
             {
                 Ok = ok,
-                PrototypeId = req.PrototypeId,
+                PrototypeId = req.PrototypeId, // 这里传的是实例ID
                 CurrentTotalPerson = current,
                 MaxTotalPerson = max,
                 TxId = req.TxId
@@ -336,13 +374,22 @@ namespace ProjectSulamith.Systems
         // 对外暴露BuildingDef字典
         public Dictionary<string, BuildingDef> BuildingDefMap => _buildingDefMap;
 
-        // 获取指定建筑的已派遣人数
-        public int GetAssignedPersons(string prototypeId)
+        // 通过实例ID获取派遣人数
+        public int GetAssignedPersonsByInstanceId(string instanceId)
         {
-            if (string.IsNullOrEmpty(prototypeId) || !_buildingTotalAssignPersons.ContainsKey(prototypeId))
+            if (string.IsNullOrEmpty(instanceId) || !_buildingInstanceAssignPersons.ContainsKey(instanceId))
                 return 0;
-            return _buildingTotalAssignPersons[prototypeId];
+            return _buildingInstanceAssignPersons[instanceId];
         }
+
+        // 通过实例ID获取类型ID
+        public string GetPrototypeIdByInstanceId(string instanceId)
+        {
+            if (string.IsNullOrEmpty(instanceId) || !_instanceToPrototypeMap.ContainsKey(instanceId))
+                return "";
+            return _instanceToPrototypeMap[instanceId];
+        }
+
         #endregion
 
         #region 兼容的内部状态类（如有 UI/存档引用可保留）

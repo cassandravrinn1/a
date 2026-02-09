@@ -1,11 +1,10 @@
-<<<<<<< HEAD
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!129 &1
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 26
-  productGUID: c35e306563619714795c8fbb6d936ecd
+  productGUID: 43a59d8f94ea9c049a6bf8c1ac65516e
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -163,7 +162,8 @@ PlayerSettings:
   resetResolutionOnWindowResize: 0
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
-  applicationIdentifier: {}
+  applicationIdentifier:
+    Standalone: com.DefaultCompany.Unity-Project-Sulamith
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -676,6 +676,3 @@ PlayerSettings:
   platformRequiresReadableAssets: 0
   virtualTexturingSupportEnabled: 0
   insecureHttpOption: 0
-version https://git-lfs.github.com/spec/v1
-oid sha256:4126843853f76837f7f246e19e79b3575384dbf0ea714349c91bf024cfa23f77
-size 20023
