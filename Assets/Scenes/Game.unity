@@ -2488,6 +2488,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 13793039265893a4a895da66310bbc6d, type: 2}
   - {fileID: 11400000, guid: b9e4b0f18ae79ea468c18b7a4a2b323e, type: 2}
   - {fileID: 11400000, guid: 305e34c1377bd7449bca9241ac2aae47, type: 2}
+  techSystem: {fileID: 0}
   nameText: {fileID: 999522184}
   descText: {fileID: 985637818}
   costText: {fileID: 479371324}
@@ -9153,6 +9154,7 @@ Transform:
   - {fileID: 681260240}
   - {fileID: 1230822714}
   - {fileID: 1421437558}
+  - {fileID: 1262380243}
   m_Father: {fileID: 1642725682}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1230551653
@@ -9487,6 +9489,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1250948428}
   m_CullTransparentMesh: 1
+--- !u!1 &1262380242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1262380243}
+  - component: {fileID: 1262380244}
+  m_Layer: 0
+  m_Name: TechSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1262380243
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262380242}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1230551652}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1262380244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262380242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f642078a2eee2fe4e8ded6c290b7d7c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allNodes: []
+  inkManager: {fileID: 1972418011}
+  allowReDiscussRejected: 1
+  allowReDiscussDeferred: 1
+  logTech: 0
 --- !u!1 &1265472438
 GameObject:
   m_ObjectHideFlags: 0
@@ -14499,6 +14550,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1972418012}
   - component: {fileID: 1972418011}
+  - component: {fileID: 1972418013}
   m_Layer: 0
   m_Name: InkManager
   m_TagString: Untagged
@@ -14518,12 +14570,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b1b0bb807fcb514ab125a7e4d7bcc49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inkJSONAsset: {fileID: 4900000, guid: 340196f96b286fd4ca703ebf3b61da27, type: 3}
+  inkJSONAsset: {fileID: 4900000, guid: 5d5d0ead049eee84da2bc8c2be845f34, type: 3}
+  gate: {fileID: 1972418013}
   commandTagPrefix: 'cmd:'
   logCommands: 1
   warnUnknownCommands: 1
   maxCommandsPerContinueStep: 32
-  currentInkId: Main
+  currentInkId: TestPriority
   _scheduledTasks: []
   inkLibrary:
   - Id: MainTest
@@ -14536,6 +14589,10 @@ MonoBehaviour:
     InkJson: {fileID: 4900000, guid: 35d5884fcf87246439d532c86db304f5, type: 3}
   - Id: StressTest
     InkJson: {fileID: 4900000, guid: 7839b00404588cb459c8b6f7efd2a04e, type: 3}
+  - Id: T001
+    InkJson: {fileID: 4900000, guid: 30793f5352f43b34e8978af859a9c9ad, type: 3}
+  - Id: TestPriority
+    InkJson: {fileID: 4900000, guid: 5d5d0ead049eee84da2bc8c2be845f34, type: 3}
 --- !u!4 &1972418012
 Transform:
   m_ObjectHideFlags: 0
@@ -14551,6 +14608,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1642725682}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1972418013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972418010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d2fe5d49e3161c4c9c5d843a455dbdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inkManager: {fileID: 1972418011}
+  allowForceDuringBusy: 1
+  allowForceDuringSleeping: 1
+  logGate: 1
 --- !u!1 &2013769337
 GameObject:
   m_ObjectHideFlags: 0

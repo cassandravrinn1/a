@@ -85,6 +85,7 @@ namespace ProjectSulamith.Dialogue
         public event Action<string> OnLine;
         public event Action<List<Choice>> OnChoices;
         public event Action OnStoryEnded;
+        public ConversationGate gate;
 
         [Header("Command Tags")]
         [Tooltip("识别命令用的 tag 前缀。Ink 里写：#cmd: hs_event Damage 0.2")]
@@ -193,11 +194,24 @@ namespace ProjectSulamith.Dialogue
                 }
                 else
                 {
-                    if (!StoryInstance.canContinue)
-                    {
-                        OnChoices?.Invoke(new List<Choice>());
-                        OnStoryEnded?.Invoke();
-                    }
+                    
+                        if (!StoryInstance.canContinue)
+                        {
+                            OnChoices?.Invoke(new List<Choice>());
+
+                            // ★ 如果这是“调度插入片段”，不要让 UI 当成会话结束
+                            if (IsScheduledInsertPlaying)
+                            {
+                                MarkScheduledInsertEnd();
+                                // 不触发 OnStoryEnded（避免 UI 打“通信结束”）
+                                return;
+                            }
+
+                            // 正常会话结束
+                            OnStoryEnded?.Invoke();
+                        }
+                   
+
                 }
             }
             finally
@@ -299,6 +313,11 @@ namespace ProjectSulamith.Dialogue
                         HandlePlanArm(parts);
                         return true;
 
+                    case "tech_commit":
+                        HandleTechCommit(parts);
+                        return true;
+
+
                     default:
                         if (warnUnknownCommands)
                             Debug.LogWarning($"[InkCmd] Unknown command: {cmd} (raw='{payload}')");
@@ -379,12 +398,24 @@ namespace ProjectSulamith.Dialogue
                 return;
             }
 
-            string planId = parts.Length >= 4 ? parts[3] : null;
-            bool cancelOnReply = false;
-            if (parts.Length >= 5) bool.TryParse(parts[4], out cancelOnReply);
+            ParseScheduleTail(parts, startIndex: 3, out string planId, out bool cancelOnReply, out int p, out bool f);
+            ScheduleKnot(currentInkId, knot, minutes, planId, cancelOnReply, p, f);
 
-            // ★ 关键：默认归属当前 Ink（currentInkId），避免切走文件导致到点找不到 knot
-            ScheduleKnot(currentInkId, knot, minutes, planId, cancelOnReply);
+        }
+
+        private void HandleTechCommit(string[] parts)
+        {
+            // tech_commit <techId> <decision>
+            if (parts.Length < 3)
+            {
+                Debug.LogWarning("[InkCmd] tech_commit requires: tech_commit <techId> <unlock|reject|defer>");
+                return;
+            }
+
+            string techId = parts[1];
+            string decision = parts[2].ToLowerInvariant();
+
+            ProjectSulamith.TechTree.TechSystem.Instance?.OnTechCommit(techId, decision);
         }
 
         private void HandleScheduleTo(string[] parts)
@@ -406,11 +437,9 @@ namespace ProjectSulamith.Dialogue
                 return;
             }
 
-            string planId = parts.Length >= 5 ? parts[4] : null;
-            bool cancelOnReply = false;
-            if (parts.Length >= 6) bool.TryParse(parts[5], out cancelOnReply);
+            ParseScheduleTail(parts, startIndex: 3, out string planId, out bool cancelOnReply, out int p, out bool f);
+            ScheduleKnot(currentInkId, knot, minutes, planId, cancelOnReply, p, f);
 
-            ScheduleKnot(inkId, knot, minutes, planId, cancelOnReply);
         }
 
         private void HandlePlanArm(string[] parts)
@@ -569,6 +598,8 @@ namespace ProjectSulamith.Dialogue
             }
 
             hs.SetSleeping(sleeping);
+            GetComponent<ConversationGate>()?.SetSleeping(sleeping);
+
         }
 
         private void HandleHsActivity(string[] parts)
@@ -604,15 +635,17 @@ namespace ProjectSulamith.Dialogue
         {
             public string Id;
             public double DueTotalMinutes;   // 使用 TimeManager.GameTimeMinutes 的“总分钟轴”
-            public string InkId;            // ★ 归属 Ink（到点先切回该 Ink）
-            public string Knot;             // 目标 knot
+            public string InkId;             // 归属 Ink
+            public string Knot;              // 目标 knot
 
-            // ★ 《生命线》式计划消息流：
-            // PlanId：同一个计划中的多段消息共享同一 PlanId
-            // CancelOnReply：若玩家在第一段处回复，则取消计划中这些剩余段
             public string PlanId;
             public bool CancelOnReply;
+
+            // ★ 新增：调度优先级与强打断
+            public int Priority = 20;
+            public bool ForceInterrupt = false;
         }
+
 
         // 当前所有待触发任务
         [SerializeField] private List<ScheduledInkTask> _scheduledTasks = new List<ScheduledInkTask>();
@@ -622,7 +655,11 @@ namespace ProjectSulamith.Dialogue
         {
             public string InkId;
             public string Knot;
+            public int Priority;
+            public bool ForceInterrupt;
         }
+
+
 
         private readonly Queue<InkTrigger> _pendingKnotTriggers = new Queue<InkTrigger>();
 
@@ -632,6 +669,8 @@ namespace ProjectSulamith.Dialogue
         {
             _bus = EventBus.Instance;
             _bus?.Subscribe<GameTickEvent>(OnGameTick);
+            if (gate == null) gate = GetComponent<ConversationGate>();
+
         }
 
         private void OnDisable()
@@ -652,7 +691,14 @@ namespace ProjectSulamith.Dialogue
         }
 
         // ★ 核心：调度任务携带 inkId（归属）、可选 planId、可选 cancelOnReply
-        private void ScheduleKnot(string inkId, string knot, float delayMinutes, string planId = null, bool cancelOnReply = false)
+        private void ScheduleKnot(
+    string inkId,
+    string knot,
+    float delayMinutes,
+    string planId = null,
+    bool cancelOnReply = false,
+    int priority = 20,
+    bool forceInterrupt = false)
         {
             if (string.IsNullOrWhiteSpace(inkId)) inkId = currentInkId;
             if (string.IsNullOrWhiteSpace(knot)) return;
@@ -666,12 +712,18 @@ namespace ProjectSulamith.Dialogue
                 DueTotalMinutes = due,
                 InkId = inkId,
                 Knot = knot,
+
                 PlanId = planId,
-                CancelOnReply = cancelOnReply
+                CancelOnReply = cancelOnReply,
+
+                Priority = priority,
+                ForceInterrupt = forceInterrupt
             });
 
-            Debug.Log($"[InkSchedule] ink='{inkId}' knot='{knot}' due={due:F2} (in {delayMinutes:F2}m) plan='{planId}' cancelOnReply={cancelOnReply}");
+            Debug.Log($"[InkSchedule] ink='{inkId}' knot='{knot}' due={due:F2} (in {delayMinutes:F2}m) " +
+                      $"plan='{planId}' cancelOnReply={cancelOnReply} p={priority} f={forceInterrupt}");
         }
+
 
         private void CheckScheduledTasks(double nowTotalMinutes)
         {
@@ -685,7 +737,14 @@ namespace ProjectSulamith.Dialogue
                     _scheduledTasks.RemoveAt(i);
 
                     // 不在 Tick 回调里直接 StartStory；先入队，下一帧执行
-                    _pendingKnotTriggers.Enqueue(new InkTrigger { InkId = t.InkId, Knot = t.Knot });
+                    _pendingKnotTriggers.Enqueue(new InkTrigger
+                    {
+                        InkId = t.InkId,
+                        Knot = t.Knot,
+                        Priority = t.Priority,
+                        ForceInterrupt = t.ForceInterrupt
+                    });
+
                 }
             }
         }
@@ -708,29 +767,34 @@ namespace ProjectSulamith.Dialogue
 
         private void Update()
         {
-            // 一帧只触发一个，避免到点任务太多刷屏
-            if (_pendingKnotTriggers.Count > 0)
+            // 一帧只处理一个到点触发，避免刷屏
+            if (_pendingKnotTriggers.Count <= 0) return;
+
+            var trig = _pendingKnotTriggers.Dequeue();
+
+            // 若 ContinueStory 正在跑，延迟一帧触发（更稳）
+            if (_isContinuing)
             {
-                var trig = _pendingKnotTriggers.Dequeue();
-
-                // 若 ContinueStory 正在跑，延迟一帧触发（更稳）
-                if (_isContinuing)
-                {
-                    _pendingKnotTriggers.Enqueue(trig);
-                    return;
-                }
-
-                // ★ 到点先切回归属 Ink，再进入 knot（彻底解决“切走文件到点报错”）
-                if (!string.Equals(trig.InkId, currentInkId, StringComparison.Ordinal))
-                {
-                    SwitchInk(trig.InkId, trig.Knot);
-                }
-                else
-                {
-                    StartStory(trig.Knot);
-                }
+                _pendingKnotTriggers.Enqueue(trig);
+                return;
             }
+
+            // 交给 Gate：Busy/Sleeping 时会入队，Idle 时会立即执行
+            if (gate != null)
+            {
+                gate.RequestSwitch(trig.InkId, trig.Knot, trig.Priority, trig.ForceInterrupt);
+            }
+            else
+            {
+                // 兜底：保持原逻辑
+                if (!string.Equals(trig.InkId, currentInkId, StringComparison.Ordinal))
+                    SwitchInk(trig.InkId, trig.Knot);
+                else
+                    StartStory(trig.Knot);
+            }
+
         }
+
 
         // =====================================================================
         // Ink Library + 切换 Ink（保留你原接口，只补强 currentInkId 的维护）
@@ -791,7 +855,81 @@ namespace ProjectSulamith.Dialogue
             yield return null;
             SwitchInk(inkId, knot);
         }
-    }
-    
+        private void ParseScheduleTail(
+        string[] parts,
+        int startIndex,
+        out string planId,
+        out bool cancelOnReply,
+        out int priority,
+        out bool forceInterrupt)
+        {
+            planId = null;
+            cancelOnReply = false;
+            priority = 20;
+            forceInterrupt = false;
+
+            int positionalSeen = 0; // 用于 planId / cancelOnReply 的“非 kv”参数
+
+            for (int i = startIndex; i < parts.Length; i++)
+            {
+                string token = parts[i];
+                if (string.IsNullOrWhiteSpace(token)) continue;
+
+                // kv 参数：p= / f=
+                if (token.StartsWith("p=", StringComparison.OrdinalIgnoreCase))
+                {
+                    var v = token.Substring(2);
+                    if (int.TryParse(v, out int p)) priority = p;
+                    continue;
+                }
+                if (token.StartsWith("f=", StringComparison.OrdinalIgnoreCase))
+                {
+                    var v = token.Substring(2);
+                    if (bool.TryParse(v, out bool f)) forceInterrupt = f;
+                    continue;
+                }
+
+                // 非 kv：按顺序吃 planId / cancelOnReply
+                if (positionalSeen == 0)
+                {
+                    planId = token;
+                    positionalSeen++;
+                    continue;
+                }
+                if (positionalSeen == 1)
+                {
+                    bool.TryParse(token, out cancelOnReply);
+                    positionalSeen++;
+                    continue;
+                }
+
+                // 多余参数忽略（留扩展）
+            }
+        }
+
+
+        // 是否正在播放“调度插入片段”（由 Gate / schedule 触发的插入）
+        // UI 可用它决定是否展示“通信结束”
+        public bool IsScheduledInsertPlaying { get; private set; } = false;
+
+        // 可选：给 UI 一个更准确的信号（插入片段结束）
+        public event Action OnScheduledInsertEnded;
+        // Gate 在执行 schedule 插入前调用
+        public void MarkScheduledInsertBegin()
+        {
+            IsScheduledInsertPlaying = true;
+        }
+
+        // 当这次插入片段结束时调用（由 InkManager 自己判定）
+        private void MarkScheduledInsertEnd()
+        {
+            if (!IsScheduledInsertPlaying) return;
+            IsScheduledInsertPlaying = false;
+            OnScheduledInsertEnded?.Invoke();
+        }
+
 
     }
+
+
+}

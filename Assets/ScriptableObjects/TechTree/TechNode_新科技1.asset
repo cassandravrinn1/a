@@ -1,3 +1,24 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:dd9cfcd1426de029875e14ac88bd7e95ef3a4db05c3b090a2727ced66787dfb9
-size 580
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aebd69759de7e944b762a23a4ec8917, type: 3}
+  m_Name: "TechNode_\u65B0\u79D1\u62801"
+  m_EditorClassIdentifier: 
+  id: 001
+  displayName: "\u79D1\u62801"
+  description: "\u8FD9\u662F\u79D1\u62801"
+  category: 0
+  cost: 50
+  uiPosition: {x: -300, y: -50}
+  prerequisites: []
+  discussionInkId: T001
+  discussionEntryKnot: start
+  allowDiscussWhenLocked: 1
