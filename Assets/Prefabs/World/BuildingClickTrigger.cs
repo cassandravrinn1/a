@@ -47,17 +47,11 @@ public class BuildingClickTrigger : MonoBehaviour
 
     public void OnBuildingClicked()
     {
-        if (_buildPanel == null || _buildPanel.assignUI == null)
+        // 通过统一通道打开弹窗
+        if (PopupRootManager.Instance != null)
         {
-            Debug.LogWarning("派遣面板未绑定！");
-            return;
+            PopupRootManager.Instance.ShowBuildingAssignUI(buildingInstanceId);
         }
-
-        // 强制激活面板（优先级最高）
-        _buildPanel.assignUI.gameObject.SetActive(true);
-        // 调用ShowPanel，传实例ID
-        _buildPanel.assignUI.ShowPanel(buildingInstanceId);
-        Debug.Log($" 射线检测成功，打开面板：{buildingInstanceId}");
     }
 
     // 兜底保留OnMouseDown

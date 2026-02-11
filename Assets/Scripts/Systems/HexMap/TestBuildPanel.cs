@@ -20,8 +20,6 @@ public class TestBuildPanel : MonoBehaviour
     public Button btnBattery;
     public Button btnCanteen;
 
-    //public Button btnOpenAssignPanel; // 打开派遣面板的按钮(是否需要单独派遣面板待定)
-    public BuildingAssignUI assignUI; // 派遣UI引用
 
     [Header("Costs (整数)")]
     public int warehouseFood = 0;
@@ -72,43 +70,7 @@ public class TestBuildPanel : MonoBehaviour
 
         //if (btnOpenAssignPanel) btnOpenAssignPanel.onClick.RemoveAllListeners();
     }
-    /*
-    // 每帧检测选中格子是否有建筑，更新派遣按钮状态
-    void Update()
-    {
-        UpdateAssignButtonState();
-    }
-
-    // 更新派遣按钮是否可用
-    private void UpdateAssignButtonState()
-    {
-        if (btnOpenAssignPanel == null || hexGrid == null) return;
-
-        HexTileData selectedTile = hexGrid.GetSelectedTile();
-        // 只有选中有建筑的格子，按钮才可用
-        btnOpenAssignPanel.interactable = (selectedTile != null && selectedTile.hasBuilding && !string.IsNullOrEmpty(selectedTile.buildingPrototypeId));
-    }
-    // 打开派遣面板
-    private void OnOpenAssignPanel()
-    {
-        HexTileData selectedTile = hexGrid.GetSelectedTile();
-        if (selectedTile == null || !selectedTile.hasBuilding)
-        {
-            Log(" 未选中有建筑的格子！");
-            return;
-        }
-
-        if (assignUI == null)
-        {
-            Log(" 未绑定派遣UI！");
-            return;
-        }
-
-        // 弹出派遣面板，传入选中建筑的ID
-        assignUI.ShowPanel(selectedTile.buildingPrototypeId);
-        Log($" 打开{selectedTile.buildingPrototypeId}的派遣面板");
-    }
-     */
+ 
     private void OnResChanged(ResourceChangedEvent e)
     {
         if (resText)

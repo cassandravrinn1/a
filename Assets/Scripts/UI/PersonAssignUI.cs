@@ -34,13 +34,8 @@ public class BuildingAssignUI : MonoBehaviour
     private PersonAssignSystem _assignSystem;              // 派遣系统引用
     private PopulationSystem _populationSystem;            // 人口系统引用
     private ResourceSystem _resourceSystem;
-    public static BuildingAssignUI Instance;
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
         // 初始隐藏面板
         HidePanel();
     }
@@ -132,13 +127,21 @@ public class BuildingAssignUI : MonoBehaviour
         if (_withdrawButton != null)
         {
             _withdrawButton.onClick.RemoveAllListeners();
-            _withdrawButton.onClick.AddListener(HidePanel);
+            _withdrawButton.onClick.AddListener(() =>
+            {
+                Debug.Log("点击撤回按钮，通知管理器关闭派遣弹窗");
+                PopupRootManager.Instance?.HideBuildingAssignUI();
+            });
             Debug.Log("撤回按钮绑定成功！");
         }
         if (_closeButton != null)
         {
             _closeButton.onClick.RemoveAllListeners();
-            _closeButton.onClick.AddListener(HidePanel);
+            _closeButton.onClick.AddListener(() =>
+            {
+                Debug.Log("点击关闭按钮，通知管理器关闭派遣弹窗");
+                PopupRootManager.Instance?.HideBuildingAssignUI();
+            });
             Debug.Log("关闭按钮绑定成功！");
         }
     }
