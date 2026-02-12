@@ -102,6 +102,8 @@ public class HexGridInputController : MonoBehaviour
         worldPos.z = 0f;
 
         Vector3Int cellPos = data.groundTilemap.WorldToCell(worldPos);
+        bool hasTile = data.HasTile(cellPos);
+        Debug.Log($"点击位置：{screenPos} → 世界坐标：{worldPos} → 格子坐标：{cellPos} → 是否有瓦片：{hasTile}");
         if (!data.HasTile(cellPos)) return;
 
         data.SelectCell(cellPos);

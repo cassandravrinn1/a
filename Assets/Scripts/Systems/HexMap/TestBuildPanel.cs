@@ -20,8 +20,6 @@ public class TestBuildPanel : MonoBehaviour
     public Button btnBattery;
     public Button btnCanteen;
 
-    //public Button btnOpenAssignPanel; // 打开派遣面板的按钮(是否需要单独派遣面板待定)
-    public BuildingAssignUI assignUI; // 派遣UI引用
 
     [Header("Costs (整数)")]
     public int warehouseFood = 0;
@@ -72,43 +70,7 @@ public class TestBuildPanel : MonoBehaviour
 
         //if (btnOpenAssignPanel) btnOpenAssignPanel.onClick.RemoveAllListeners();
     }
-    /*
-    // 每帧检测选中格子是否有建筑，更新派遣按钮状态
-    void Update()
-    {
-        UpdateAssignButtonState();
-    }
-
-    // 更新派遣按钮是否可用
-    private void UpdateAssignButtonState()
-    {
-        if (btnOpenAssignPanel == null || hexGrid == null) return;
-
-        HexTileData selectedTile = hexGrid.GetSelectedTile();
-        // 只有选中有建筑的格子，按钮才可用
-        btnOpenAssignPanel.interactable = (selectedTile != null && selectedTile.hasBuilding && !string.IsNullOrEmpty(selectedTile.buildingPrototypeId));
-    }
-    // 打开派遣面板
-    private void OnOpenAssignPanel()
-    {
-        HexTileData selectedTile = hexGrid.GetSelectedTile();
-        if (selectedTile == null || !selectedTile.hasBuilding)
-        {
-            Log(" 未选中有建筑的格子！");
-            return;
-        }
-
-        if (assignUI == null)
-        {
-            Log(" 未绑定派遣UI！");
-            return;
-        }
-
-        // 弹出派遣面板，传入选中建筑的ID
-        assignUI.ShowPanel(selectedTile.buildingPrototypeId);
-        Log($" 打开{selectedTile.buildingPrototypeId}的派遣面板");
-    }
-     */
+ 
     private void OnResChanged(ResourceChangedEvent e)
     {
         if (resText)
@@ -148,6 +110,10 @@ public class TestBuildPanel : MonoBehaviour
     // 生成建筑实例并配置点击脚本
     private void SpawnBuildingInstance(string proto, HexTileData tile)
     {
+        if (tile.cellPosition == Vector3Int.zero)
+        {
+            Debug.LogError($"[{proto}] 格子坐标为空！");
+        }
         GameObject prefab = null;
         switch (proto)
         {
@@ -166,7 +132,9 @@ public class TestBuildPanel : MonoBehaviour
         // 生成建筑实例（放在格子中心位置）
         Vector3 worldPos = hexGrid.GetCellCenterWorld(tile.cellPosition);
         GameObject buildingObj = Instantiate(prefab, worldPos, Quaternion.identity);
-        buildingObj.name = $"{proto}_{tile.cellPosition}";
+        // 生成实例唯一ID（proto + 格子坐标，保证唯一）
+        string instanceId = $"{proto}_{tile.cellPosition.x}_{tile.cellPosition.y}_{tile.cellPosition.z}";
+        buildingObj.name = instanceId;
 
         // 给建筑添加点击脚本并赋值关键参数
         BuildingClickTrigger clickTrigger = buildingObj.GetComponent<BuildingClickTrigger>();
@@ -176,9 +144,10 @@ public class TestBuildPanel : MonoBehaviour
         }
         clickTrigger.cellPosition = tile.cellPosition;
         clickTrigger.buildingPrototypeId = proto;
-
+        clickTrigger.buildingInstanceId = instanceId; // 绑定实例ID
         // 记录建筑实例到格子数据中
         tile.buildingInstance = buildingObj;
+        tile.buildingInstanceId = instanceId; // 格子数据里也存一份实例ID
     }
     private void OnBuildAccepted(BuildAccepted e)
     {

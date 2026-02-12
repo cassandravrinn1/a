@@ -147,5 +147,6 @@ public class HexTileData
     public TerrainType terrainType;
     public bool hasBuilding;
     public string buildingPrototypeId;
+    public string buildingInstanceId;
     public GameObject buildingInstance;
 }
