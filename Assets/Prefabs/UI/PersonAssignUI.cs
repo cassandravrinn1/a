@@ -63,7 +63,7 @@ public class BuildingAssignUI : MonoBehaviour
         BindButtonEvents();
         EnableAllButtons();
 
-        // 4. 实例ID校验+强制赋值（核心修复：无ID直接兜底，有ID必赋值）
+        // 4. 实例ID校验+强制赋值
         if (string.IsNullOrEmpty(buildingInstanceId))
         {
             SetTip("建筑实例ID无效！", Color.red);
@@ -72,11 +72,45 @@ public class BuildingAssignUI : MonoBehaviour
         }
         // 强制赋值实例ID，解决“未选中任何建筑”
         _currentBuildingInstanceId = buildingInstanceId;
-
+        /*
         // 5. 解析类型ID+兜底
         string prototypeId = GetPrototypeIdFromInstanceId(buildingInstanceId);
-        if (string.IsNullOrEmpty(prototypeId)) prototypeId = "未知建筑";
-
+        // 容错：如果解析失败，尝试从HexGridData中查找
+        if (string.IsNullOrEmpty(prototypeId))
+        {
+            HexGridData hexGrid = FindObjectOfType<HexGridData>(true);
+            if (hexGrid != null)
+            {
+                // 遍历所有地块查找该实例ID对应的原型ID
+                foreach (var tile in hexGrid.GetAllTiles()) // 需要在HexGridData中添加GetAllTiles方法
+                {
+                    if (tile.buildingInstanceId == buildingInstanceId)
+                    {
+                        prototypeId = tile.buildingPrototypeId;
+                        break;
+                    }
+                }
+            }
+            prototypeId = string.IsNullOrEmpty(prototypeId) ? "未知建筑" : prototypeId;
+        }*/
+        string prototypeId = "未知建筑";
+        HexGridData hexGrid = FindObjectOfType<HexGridData>(true);
+        if (hexGrid != null)
+        {
+            // 遍历所有地块，匹配实例ID
+            foreach (var tile in hexGrid.GetAllTiles())
+            {
+                if (tile.buildingInstanceId == buildingInstanceId)
+                {
+                    prototypeId = tile.buildingPrototypeId;
+                    // 打印日志，确认找到的数据
+                    Debug.Log($"从HexGridData找到：实例ID={buildingInstanceId} → 原型ID={prototypeId}");
+                    break;
+                }
+            }
+        }
+        // 最终兜底
+        prototypeId = string.IsNullOrEmpty(prototypeId) ? "未知建筑" : prototypeId;
         // 6. 读取建筑上限+兜底（兼容ResourceSystem为空）
         int buildingMaxAssign = _defaultBuildingMax;
         if (_resourceSystem != null && _resourceSystem.BuildingDefMap != null && _resourceSystem.BuildingDefMap.TryGetValue(prototypeId, out BuildingDef def))
@@ -153,8 +187,9 @@ public class BuildingAssignUI : MonoBehaviour
     {
         if (string.IsNullOrEmpty(instanceId)) return "";
 
-        // 按下划线分割，取第一个部分（实例ID格式：原型名_x_y）
-        string[] parts = instanceId.Split('_');
+        // 支持多种分隔符，取第一个部分
+        char[] separators = new char[] { '_', '-', '|' };
+        string[] parts = instanceId.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
         return parts.Length > 0 ? parts[0] : "";
     }
 

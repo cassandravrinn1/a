@@ -15,6 +15,8 @@ public class PopupRootManager : MonoBehaviour
     public GameObject BuildingAssignUIPrefab;
     public GameObject SystemPopupPrefab;
     public GameObject SettingsPopupPrefab;
+    public GameObject BuildSelectPopupPrefab; // 拖入建造弹窗预制体
+
     [Header("弹窗容器")]
     public Transform PopupContainer;
     [Header("全屏阻挡")]
@@ -28,7 +30,8 @@ public class PopupRootManager : MonoBehaviour
         None,        // 无弹窗
         System,      // 系统弹窗（ESC主弹窗）
         Settings,    // 设置弹窗
-        BuildingAssign // 建筑派遣弹窗
+        BuildingAssign, // 建筑派遣弹窗
+        BuildSelect
     }
     public CurrentPopupType CurrentShowPopup = CurrentPopupType.None;
     private void Awake()
@@ -44,11 +47,16 @@ public class PopupRootManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
+        if (UIBlocker != null)
+        {
+            UIBlocker.SetActive(false);
+            Debug.Log("UIBlocker 初始化为非激活状态");
+        }
         // 初始化
         InitBuildingAssignUI();
         InitSystemPopup();
         InitSettingsPopup();
+        InitBuildSelectPopup();
     }
 
     /// <summary>
@@ -116,6 +124,28 @@ public class PopupRootManager : MonoBehaviour
             }
         }
     }
+
+    // 新增：初始化建造选择弹窗
+    private void InitBuildSelectPopup()
+    {
+        string popupKey = "BuildSelectPopup";
+        if (!_popupInstances.ContainsKey(popupKey) && BuildSelectPopupPrefab != null)
+        {
+            GameObject popupObj = Instantiate(BuildSelectPopupPrefab, PopupContainer);
+            popupObj.name = "BuildSelectPopup";
+            BuildSelectPopupLogic logic = popupObj.GetComponent<BuildSelectPopupLogic>();
+            if (logic != null)
+            {
+                _popupInstances.Add(popupKey, logic);
+                Debug.Log("建造选择弹窗已初始化");
+            }
+            else
+            {
+                Debug.LogError("建造弹窗缺少 BuildSelectPopupLogic 脚本！");
+                Destroy(popupObj);
+            }
+        }
+    }
     /// <summary>
     /// 统一通道：外部调用显示建筑派遣弹窗
     /// </summary>
@@ -169,7 +199,7 @@ public class PopupRootManager : MonoBehaviour
         return null;
     }
     /// <summary>
-    /// 新增：统一通道 - 显示系统弹窗
+    /// 统一通道 - 显示系统弹窗
     /// </summary>
     public void ShowSystemPopup()
     {
@@ -188,8 +218,36 @@ public class PopupRootManager : MonoBehaviour
         }
     }
 
+    public void ShowSettingsPopup()
+    {
+        HideAllPopups();
+        ShowUIBlocker();
+        string popupKey = "SettingsPopup";
+        if (_popupInstances.TryGetValue(popupKey, out MonoBehaviour mono) && mono is SettingsPopupLogic settings)
+        {
+            settings.ShowPanel();
+            CurrentShowPopup = CurrentPopupType.Settings; // 更新状态
+        }
+    }
+    // 外部调用显示建造弹窗
+    public void ShowBuildSelectPopup(HexTileData selectedTile)
+    {
+        HideAllPopups(); // 先关闭其他弹窗
+        ShowUIBlocker();
+        string popupKey = "BuildSelectPopup";
+        if (_popupInstances.TryGetValue(popupKey, out MonoBehaviour mono) && mono is BuildSelectPopupLogic buildPopup)
+        {
+            buildPopup.ShowPanel(selectedTile);
+            CurrentShowPopup = CurrentPopupType.BuildSelect; // 复用该状态，或新增枚举值
+        }
+        else
+        {
+            Debug.LogError("建造选择弹窗未初始化！");
+            InitBuildSelectPopup();
+        }
+    }
     /// <summary>
-    /// 新增：统一通道 - 隐藏系统弹窗
+    /// 统一通道 - 隐藏系统弹窗
     /// </summary>
     public void HideSystemPopup()
     {
@@ -206,17 +264,6 @@ public class PopupRootManager : MonoBehaviour
         CheckAndHideBlocker();
     }
 
-    public void ShowSettingsPopup()
-    {
-        HideAllPopups();
-        ShowUIBlocker();
-        string popupKey = "SettingsPopup";
-        if (_popupInstances.TryGetValue(popupKey, out MonoBehaviour mono) && mono is SettingsPopupLogic settings)
-        {
-            settings.ShowPanel();
-            CurrentShowPopup = CurrentPopupType.Settings; // 更新状态
-        }
-    }
     public void HideSettingsPopup()
     {
         string popupKey = "SettingsPopup";
@@ -230,24 +277,52 @@ public class PopupRootManager : MonoBehaviour
         }
         CheckAndHideBlocker();
     }
+    public void HideBuildSelectPopup()
+    {
+        string popupKey = "BuildSelectPopup";
+        if (_popupInstances.TryGetValue(popupKey, out MonoBehaviour mono) && mono is BuildSelectPopupLogic buildPopup)
+        {
+            buildPopup.HidePanel();
+            if (CurrentShowPopup == CurrentPopupType.BuildSelect)
+            {
+                CurrentShowPopup = CurrentPopupType.None; // 重置状态
+            }
+        }
+        CheckAndHideBlocker();
+    }
     public void HideAllPopups()
     {
         HideSystemPopup();
         HideSettingsPopup();
         HideBuildingAssignUI();
+        HideBuildSelectPopup();
         CurrentShowPopup = CurrentPopupType.None;
 
-        HideUIBlocker();
+        CheckAndHideBlocker();
     }
     /// <summary>
     /// 检查是否还有弹窗，没有则关闭阻挡层
     /// </summary>
-    private void CheckAndHideBlocker()
+    public void CheckAndHideBlocker()
     {
+        bool anyPopupActive = false;
+        foreach (var popup in _popupInstances.Values)
+        {
+            if (popup != null && popup.gameObject.activeSelf)
+            {
+                anyPopupActive = true;
+                break;
+            }
+        }
         if (CurrentShowPopup == CurrentPopupType.None && UIBlocker != null && UIBlocker.activeSelf)
         {
             HideUIBlocker();
             Debug.Log("所有弹窗已关闭，隐藏阻挡层");
+        }
+        else if (CurrentShowPopup != CurrentPopupType.None && UIBlocker != null && !UIBlocker.activeSelf)
+        {
+            ShowUIBlocker();
+            Debug.Log($"当前弹窗状态：{CurrentShowPopup}，强制激活阻挡层");
         }
     }
     public void ShowUIBlocker()

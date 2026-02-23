@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -88,6 +89,7 @@ public class HexGridData : MonoBehaviour
     }
 
     // 原接口：GetCellCenterWorld(Vector3Int)
+
     public Vector3 GetCellCenterWorld(Vector3Int cellPos)
     {
         return groundTilemap != null ? groundTilemap.GetCellCenterWorld(cellPos) : Vector3.zero;
@@ -110,7 +112,13 @@ public class HexGridData : MonoBehaviour
 
         return neighbors;
     }
-
+    /// <summary>
+    /// 执行全局协程（避免弹窗销毁导致协程终止）
+    /// </summary>
+    public Coroutine StartGlobalCoroutine(IEnumerator routine)
+    {
+        return StartCoroutine(routine);
+    }
     // ===============================
     // 选择（保留语义）
     // ===============================
@@ -120,12 +128,67 @@ public class HexGridData : MonoBehaviour
 
         SelectedCell = cellPos;
         SelectedTileData = _hexTiles[cellPos];
+
+        OnTileClicked(SelectedTileData);
     }
 
     // 原 HexGridManager 对外接口：GetSelectedTile()
     public HexTileData GetSelectedTile()
     {
         return SelectedTileData;
+    }
+    private void OnTileClicked(HexTileData tile)
+    {
+        if (tile == null) return;
+        Debug.Log($"[HexGridData] 点击地块：{tile.cellPosition}，是否有建筑：{tile.hasBuilding}");
+        if (tile.isBuilding)
+        {
+            Debug.Log($"地块 {tile.cellPosition} 正在建造中，禁止点击交互");
+            // 可选：显示提示文本（比如UI上飘字“建筑正在建造中...”）
+            return;
+        }
+        // 检查PopupRootManager是否存在
+        if (PopupRootManager.Instance == null)
+        {
+            Debug.LogError("[HexGridData] PopupRootManager 实例不存在！");
+            return;
+        }
+        if (!tile.isBuilding)
+        {
+            // 核心逻辑：无建筑→弹出建造弹窗；有建筑→弹出派遣弹窗
+            if (!tile.hasBuilding)
+            {
+                // 弹出建造选择弹窗
+                PopupRootManager.Instance.ShowBuildSelectPopup(tile);
+            }
+            else
+            {
+                // 弹出派遣弹窗（传入建筑实例ID）
+                if (!string.IsNullOrEmpty(tile.buildingInstanceId))
+                {
+                    PopupRootManager.Instance.ShowBuildingAssignUI(tile.buildingInstanceId);
+                }
+                else
+                {
+                    Debug.LogWarning($"[HexGridData] 地块有建筑但实例ID为空：{tile.cellPosition}");
+                }
+            }
+        }
+    }
+
+    // 兼容原有SetSelectedTile方法（如果外部有调用）
+    public void SetSelectedTile(HexTileData tile)
+    {
+        if (tile == null) return;
+        SelectedCell = tile.cellPosition;
+        SelectedTileData = tile;
+    }
+    /// <summary>
+    /// 获取所有地块数据（新增方法）
+    /// </summary>
+    public List<HexTileData> GetAllTiles()
+    {
+        return new List<HexTileData>(_hexTiles.Values);
     }
 }
 
@@ -146,7 +209,11 @@ public class HexTileData
     public Vector3Int cellPosition;
     public TerrainType terrainType;
     public bool hasBuilding;
+    public bool isBuilding; // 是否正在建造
+    public float buildRemainingTime; // 剩余建造时长
+
     public string buildingPrototypeId;
     public string buildingInstanceId;
     public GameObject buildingInstance;
+
 }

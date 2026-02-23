@@ -52,6 +52,7 @@ namespace ProjectSulamith.Systems
         public int EnergyCost;
         //三种资源成本
         public Guid TxId;
+        public float BuildDuration;
     }
 
     public struct BuildAccepted
