@@ -57,6 +57,10 @@ public class ESCSystem : MonoBehaviour
                 // 显示建筑派遣弹窗 → 关闭
                 _popupManager.HideBuildingAssignUI();
                 break;
+            case PopupRootManager.CurrentPopupType.BuildSelect:
+                // 显示建造弹窗 → 关闭
+                _popupManager.HideBuildSelectPopup();
+                break;
         }
     }
 

@@ -7,57 +7,64 @@ public class BuildingClickTrigger : MonoBehaviour
     public string buildingPrototypeId;
     public string buildingInstanceId;
 
-    private TestBuildPanel _buildPanel;
-    private Camera _mainCamera; // 改用2D相机
 
     void Awake()
     {
-        _buildPanel = FindObjectOfType<TestBuildPanel>(true);
-        _mainCamera = Camera.main; // 确保主相机是2D Camera（Projection=Orthographic）
-
-        // 添加2D碰撞体（适配Sprite地图）
         if (GetComponent<Collider2D>() == null)
         {
             BoxCollider2D collider2D = gameObject.AddComponent<BoxCollider2D>();
             collider2D.isTrigger = false;
-            collider2D.offset = Vector2.zero;
-            collider2D.size = new Vector2(1, 1); // 适配Sprite大小调整
+            collider2D.size = new Vector2(1, 1);
         }
+        // 关键：确保物体能接收鼠标事件
+        gameObject.GetComponent<Collider2D>().enabled = true;
         gameObject.layer = LayerMask.NameToLayer("Default");
     }
 
-    void Update()
+
+    // 兜底保留OnMouseDown
+    void OnMouseDown()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            return;
+
+        if (IsBuildingInProgress())
         {
-            // 第一步：判断是否点击在UI上 → 跳过
-            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-                return;
-
-            // 第二步：射线检测
-            Vector2 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
-
-            if (hit.collider != null && hit.collider.gameObject == this.gameObject)
-            {
-                OnBuildingClicked();
-            }
+            Debug.Log($"【ClickTrigger】建筑 {buildingInstanceId} 正在建造中，禁止点击");
+            return; // 直接返回，不执行后续逻辑
         }
-    }
+        // 日志验证ID
+        Debug.Log($"【ClickTrigger】点击建筑，PrototypeId: {buildingPrototypeId} | InstanceId: {buildingInstanceId}");
 
-    public void OnBuildingClicked()
-    {
-        // 通过统一通道打开弹窗
+        // 调用管理器打开派遣面板
         if (PopupRootManager.Instance != null)
         {
             PopupRootManager.Instance.ShowBuildingAssignUI(buildingInstanceId);
         }
     }
-
-    // 兜底保留OnMouseDown
-    void OnMouseDown()
+    /// <summary>
+    /// 判断当前建筑是否处于建造中状态
+    /// </summary>
+    private bool IsBuildingInProgress()
     {
-        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-            OnBuildingClicked();
+        // 步骤1：找到全局的HexGridData（存储所有地块/建筑状态）
+        HexGridData hexGrid = FindObjectOfType<HexGridData>(true);
+        if (hexGrid == null)
+        {
+            Debug.LogWarning("[ClickTrigger] 找不到HexGridData实例，默认允许点击");
+            return false;
+        }
+
+        // 步骤2：根据cellPosition获取地块数据
+        HexTileData tileData = hexGrid.GetTileData(cellPosition);
+        if (tileData == null)
+        {
+            Debug.LogWarning($"[ClickTrigger] 地块 {cellPosition} 数据为空，默认允许点击");
+            return false;
+        }
+
+        // 步骤3：判断该地块的建筑是否在建造中
+        // 条件：isBuilding为true → 建造中；false → 建造完成
+        return tileData.isBuilding;
     }
 }

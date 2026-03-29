@@ -54,6 +54,10 @@ public class HexGridInputController : MonoBehaviour
 
     bool ShouldBlock(bool pointerOverUIFromRouter)
     {
+        if (PopupRootManager.Instance != null && PopupRootManager.Instance.CurrentShowPopup != PopupRootManager.CurrentPopupType.None)
+        {
+            return true;
+        }
         if (!blockWhenPointerOverUI) return false;
 
         // 优先使用路由器传入的结果（更稳定）
